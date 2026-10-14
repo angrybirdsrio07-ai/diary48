@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Электронный Дневник 48</title>
+<style>
+@font-face{
+  font-family:'SF Pro Display';
+  src:url('fonts/SF-Pro.ttf') format('truetype');
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+:root{
+  --bg:#e8f5e9;--glass:rgba(255,255,255,.18);--glass-strong:rgba(255,255,255,.55);
+  --card:rgba(255,255,255,.45);--card-border:rgba(255,255,255,.55);
+  --border:rgba(255,255,255,.35);--text:#0d2818;--sub:#3a5c45;
+  --accent:#34c759;--blue:#007aff;--shadow:rgba(20,80,50,.18);
+  --blob1:#86efac;--blob2:#bbf7d0;--blob3:#d9f99d;
+  --g5:#34c759;--g4:#a3e635;--g3:#f59e0b;--g2:#ef4444;
+  --n:#64748b;--u:#eab308;--b:#dc2626;
+  --r-lg:24px;--r-md:16px;
+  --input-bg:rgba(255,255,255,.55);--input-bg-focus:#fff;
+  --modal-bg:rgba(255,255,255,.92);--empty-cell:rgba(128,128,128,.35);
+}
+[data-theme="dark"]{
+  --bg:#0a1812;--glass:rgba(20,40,30,.35);--glass-strong:rgba(20,40,30,.7);
+  --card:rgba(30,55,45,.5);--card-border:rgba(80,120,100,.35);
+  --border:rgba(90,140,110,.3);--text:#e8f5e9;--sub:#8fbfa5;
+  --shadow:rgba(0,0,0,.5);--blob1:#14532d;--blob2:#166534;--blob3:#1a5c1a;
+  --input-bg:rgba(30,55,45,.6);--input-bg-focus:rgba(40,70,55,.9);
+  --modal-bg:rgba(20,40,30,.95);--empty-cell:rgba(160,190,170,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);transition:background .4s;position:relative}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.7;animation:float 12s infinite ease-in-out alternate;z-index:0;transition:background .4s;pointer-events:none}
+.b1{width:450px;height:450px;background:var(--blob1);top:-120px;left:-120px}
+.b2{width:550px;height:550px;background:var(--blob2);bottom:-180px;right:-120px;animation-delay:-4s}
+.b3{width:350px;height:350px;background:var(--blob3);top:35%;left:25%;animation-delay:-8s}
+@keyframes float{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,60px) scale(1.15)}}
+.app{width:100vw;height:100vh;height:100dvh;background:var(--glass);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);display:flex;flex-direction:column;overflow:hidden;position:relative;z-index:10;transition:background .4s}
+
+#loginScreen{flex:1;display:flex;flex-direction:column;overflow-y:auto;padding:32px 24px}
+#loginScreen::-webkit-scrollbar{display:none}
+.login-inner{width:100%;max-width:420px;margin:0 auto;display:flex;flex-direction:column;flex:1}
+.login-hero{text-align:center;margin:auto 0 24px}
+.login-hero svg{width:56px;height:56px;color:var(--accent);margin-bottom:8px}
+.login-hero h2{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.login-hero p{font-size:13px;color:var(--sub);margin-top:4px}
+.login-form{display:flex;flex-direction:column;gap:12px;margin-bottom:auto}
+.login-foot{text-align:center;margin-top:auto;padding-top:20px;padding-bottom:10px}
+.input{width:100%;padding:14px 16px;border-radius:var(--r-md);border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px;font-weight:500;outline:none;transition:.2s}
+.input:focus{border-color:var(--blue);background:var(--input-bg-focus)}
+.btn{width:100%;padding:16px;border-radius:var(--r-md);border:none;background:var(--blue);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;box-shadow:0 6px 20px rgba(0,122,255,.35);display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.97)}
+.btn.green{background:var(--accent);box-shadow:0 6px 20px rgba(52,199,89,.35)}
+.btn.red{background:var(--g2);box-shadow:0 6px 20px rgba(239,68,68,.35)}
+.btn.ghost{background:var(--input-bg);color:var(--text);box-shadow:none;border:1px solid var(--border)}
+.btn.small{padding:10px 14px;font-size:13px;width:auto}
+.btn svg{width:18px;height:18px}
+.theme-toggle{position:fixed;top:16px;right:16px;width:42px;height:42px;border-radius:50%;background:var(--input-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;transition:.2s;color:var(--text);backdrop-filter:blur(8px)}
+.theme-toggle:active{transform:scale(.92)}
+.theme-toggle svg{width:20px;height:20px}
+
+#appScreen{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.header{padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);flex-shrink:0;gap:10px}
+.header-info{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.header-info h1{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px}
+.header-info h1 svg{width:16px;height:16px;color:var(--accent);flex-shrink:0}
+.logout-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:20px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--g2);font-size:11px;font-weight:700;cursor:pointer;transition:.2s;width:fit-content;backdrop-filter:blur(8px)}
+.logout-btn:hover{background:rgba(239,68,68,.22);transform:translateY(-1px)}
+.logout-btn:active{transform:scale(.96)}
+.logout-btn svg{width:12px;height:12px}
+.user-chip{background:var(--input-bg);padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;backdrop-filter:blur(8px);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.user-chip svg{width:14px;height:14px;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:16px 16px 180px 16px;scrollbar-width:none;touch-action:pan-y;width:100%;overflow-x:hidden}
+.content::-webkit-scrollbar{display:none}
+.content-inner{width:100%;max-width:920px;margin:0 auto}
+
+/* ПАНЕЛЬ НАВИГАЦИИ — ВО ВСЮ ШИРИНУ, ПРИЖАТА К НИЗУ */
+.bottom-nav-wrap{position:fixed;bottom:0;left:0;right:0;width:100%;display:block;pointer-events:none;z-index:50}
+.bottom-nav{position:relative;width:100%;background:var(--glass-strong);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-top:1px solid var(--border);border-radius:24px 24px 0 0;padding:8px 4px calc(8px + env(safe-area-inset-bottom,0px));display:flex;gap:0;justify-content:space-around;align-items:center;box-shadow:0 -10px 32px var(--shadow),inset 0 1px 0 rgba(255,255,255,.4);pointer-events:auto;touch-action:none;overflow:hidden}
+.nav-pill{
+  position:absolute;top:8px;left:0;height:48px;width:56px;border-radius:36px;
+  background:
+    radial-gradient(circle at 28% 22%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 45%),
+    radial-gradient(circle at 72% 78%, rgba(180,235,205,.75) 0%, rgba(180,235,205,0) 50%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,.7) 0%, rgba(255,255,255,.35) 60%, rgba(255,255,255,.55) 100%);
+  background-size:220% 220%, 220% 220%, 100% 100%;
+  animation:glassFlow 6s ease-in-out infinite;
+  backdrop-filter:blur(22px) saturate(200%);
+  -webkit-backdrop-filter:blur(22px) saturate(200%);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.95),
+    inset 0 -2px 4px rgba(120,180,140,.15),
+    inset 0 0 20px rgba(255,255,255,.35),
+    0 4px 16px rgba(20,80,50,.18),
+    0 0 24px rgba(52,199,89,.22);
+  border:1px solid rgba(255,255,255,.7);
+  transition:transform .35s cubic-bezier(.4,1.3,.6,1),width .35s cubic-bezier(.4,1.3,.6,1);
+  z-index:1;cursor:grab;user-select:none;
+  touch-action:none;
+  will-change:transform;
+  pointer-events:auto;
+}
+.nav-pill.dragging{
+  transition:none;cursor:grabbing;
+  animation-duration:2s;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.95),
+    inset 0 -2px 4px rgba(120,180,140,.2),
+    0 8px 24px rgba(0,0,0,.22),
+    0 0 32px rgba(52,199,89,.4);
+}
+@keyframes glassFlow{
+  0%   {background-position:0% 0%, 100% 100%, 50% 50%}
+  50%  {background-position:100% 100%, 0% 0%, 50% 50%}
+  100% {background-position:0% 0%, 100% 100%, 50% 50%}
+}
+.nav-btn{position:relative;z-index:2;flex:1;max-width:90px;height:52px;border-radius:36px;border:none;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--sub);font-size:9px;font-weight:700;transition:color .2s;pointer-events:auto;padding:0 4px}
+.nav-btn svg{width:22px;height:22px}
+.nav-btn.active{color:var(--text)}
+.nav-badge{position:absolute;top:2px;right:12px;min-width:16px;height:16px;border-radius:8px;background:var(--g2);color:#fff;font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--input-bg-focus);line-height:1}
+.nav-btn.has-badge .nav-badge{display:flex}
+
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;backdrop-filter:blur(12px)}
+.card h3{font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card h3 svg{width:14px;height:14px;flex-shrink:0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.empty{text-align:center;color:var(--sub);font-size:13px;padding:24px 12px;font-weight:500;line-height:1.5;display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty svg{width:36px;height:36px;opacity:.4}
+.form-group{margin-bottom:12px}
+.label{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:6px;display:block;padding-left:4px}
+
+.grade-grid{display:flex;flex-wrap:wrap;gap:8px}
+.sq{width:50px;height:50px;border-radius:var(--r-md);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;position:relative;box-shadow:0 4px 10px rgba(0,0,0,.12)}
+.sq .d{font-size:9px;opacity:.9;font-weight:600}
+.sq .t{position:absolute;top:-5px;right:-5px;background:var(--input-bg-focus);color:var(--text);font-size:8px;font-weight:800;padding:1px 5px;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,.15)}
+.sq.g5{background:var(--g5)}.sq.g4{background:var(--g4);color:#1a5c1a}.sq.g3{background:var(--g3)}.sq.g2{background:var(--g2)}
+.sq.N{background:var(--n)}.sq.U{background:var(--u)}.sq.B{background:var(--b)}
+
+.mini-grade{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 8px;border-radius:8px;font-size:14px;font-weight:800;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.15);margin-left:6px}
+.mini-grade.g5{background:var(--g5)}.mini-grade.g4{background:var(--g4);color:#1a5c1a}.mini-grade.g3{background:var(--g3)}.mini-grade.g2{background:var(--g2)}
+.mini-grade.N{background:var(--n)}.mini-grade.U{background:var(--u)}.mini-grade.B{background:var(--b)}
+
+.subject-score{background:var(--input-bg);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.subject-score .sname{font-weight:800;font-size:14px;flex:1;min-width:120px}
+.score-digits{display:flex;gap:6px;flex-wrap:wrap}
+.score-digit{min-width:32px;height:32px;padding:0 8px;border-radius:8px;background:var(--input-bg-focus);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.score-digit.g5{background:var(--g5);color:#fff}
+.score-digit.g4{background:var(--g4);color:#1a5c1a}
+.score-digit.g3{background:var(--g3);color:#fff}
+.score-digit.g2{background:var(--g2);color:#fff}
+.score-avg{font-size:12px;color:var(--sub);font-weight:700;margin-top:6px}
+
+.journal-wrap{overflow-x:auto;border-radius:var(--r-md);background:var(--input-bg);padding:8px;-webkit-overflow-scrolling:touch}
+.journal{border-collapse:separate;border-spacing:6px;font-size:12px;min-width:520px;width:100%}
+.journal th{font-weight:700;color:var(--sub);font-size:10px;padding:4px 2px;text-align:center;width:42px}
+.journal th.weekend{color:var(--g2)}
+.journal td{padding:0}
+.journal .name-col{text-align:left;font-weight:600;font-size:11px;padding-right:6px;min-width:110px;max-width:130px;position:sticky;left:0;background:var(--input-bg-focus);border-radius:8px;padding:8px 6px;z-index:3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jcell{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;cursor:pointer;transition:transform .15s,background .15s,border-color .15s;position:relative;color:var(--sub);background:rgba(128,128,128,.08);border:2px dashed var(--empty-cell)}
+.jcell:hover{border-color:var(--blue);background:rgba(0,122,255,.1);transform:scale(1.06)}
+.jcell:active{transform:scale(.94)}
+.jcell .plus{width:18px;height:18px;opacity:.45;transition:.15s}
+.jcell:hover .plus{opacity:1;color:var(--blue)}
+.jcell.filled{border-style:solid;border-color:transparent;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+.jcell.filled .plus{display:none}
+.jcell.g5{background:var(--g5)}.jcell.g4{background:var(--g4);color:#1a5c1a}.jcell.g3{background:var(--g3)}.jcell.g2{background:var(--g2)}
+.jcell.N{background:var(--n);color:#fff}.jcell.U{background:var(--u);color:#fff}.jcell.B{background:var(--b);color:#fff}
+.jcell.weekend{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25);cursor:default;opacity:.7}
+.jcell.weekend:hover{transform:none;border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.08)}
+.jcell.weekend .plus{display:none}
+.jcell.weekend::after{content:"";width:14px;height:14px;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ef4444' stroke-width='2'><rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4M8 2v4M3 10h18'/></svg>") center/contain no-repeat;opacity:.6}
+.jcell.locked{opacity:.85}
+.jcell.locked::after{content:"";position:absolute;top:3px;right:3px;width:12px;height:12px;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>") center/contain no-repeat;filter:drop-shadow(0 0 2px rgba(0,0,0,.6))}
+.journal-hint{font-size:11px;color:var(--sub);margin-top:10px;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.journal-hint svg{width:14px;height:14px;flex-shrink:0;margin-top:2px}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;z-index:100}
+.modal-bg.show{display:flex}
+.modal{background:var(--modal-bg);backdrop-filter:blur(30px);border-radius:28px 28px 0 0;width:100%;max-width:600px;padding:20px;max-height:85vh;overflow-y:auto;border-top:1px solid var(--border)}
+.modal h3{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.modal h3 svg{width:18px;height:18px;color:var(--blue)}
+.pick-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.pick{flex:1;min-width:44px;height:46px;border-radius:12px;border:2px solid transparent;background:var(--input-bg);color:var(--text);font-weight:800;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+.pick:hover{transform:scale(1.03)}
+.pick.on.g5,.pick.on.g4,.pick.on.g3,.pick.on.g2{background:var(--accent);color:#fff;border-color:#fff}
+.pick.on.N{background:var(--n);color:#fff;border-color:#fff}.pick.on.U{background:var(--u);color:#fff;border-color:#fff}.pick.on.B{background:var(--b);color:#fff;border-color:#fff}
+.cat-row{display:flex;gap:6px;margin-bottom:12px}
+.cat{flex:1;padding:10px;border-radius:12px;border:2px solid transparent;background:var(--input-bg);color:var(--text);font-weight:700;font-size:12px;cursor:pointer;transition:.15s;text-align:center}
+.cat.on{background:var(--blue);color:#fff;border-color:#fff}
+.remove-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:12px;margin-top:6px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.1);color:var(--g2);font-weight:700;font-size:12px;cursor:pointer;transition:.15s}
+.remove-btn:hover{background:rgba(239,68,68,.18)}
+.remove-btn:active{transform:scale(.97)}
+.remove-btn svg{width:14px;height:14px}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-140px);background:rgba(52,199,89,.95);color:#fff;padding:12px 22px;border-radius:30px;font-weight:700;font-size:13px;transition:.4s cubic-bezier(.175,.885,.32,1.275);z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.2);max-width:80%;display:flex;align-items:center;gap:8px}
+.toast svg{width:16px;height:16px;flex-shrink:0}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.err{background:rgba(239,68,68,.95)}
+.toast.warn{background:rgba(245,158,11,.95)}
+
+.msg-item{padding:12px;border-radius:14px;background:var(--input-bg);margin-bottom:8px;font-size:13px;position:relative}
+.msg-item.unread{border-left:3px solid var(--blue)}
+.msg-item b{display:block;font-size:11px;color:var(--sub);margin-bottom:4px}
+.msg-item .body{margin-top:4px;line-height:1.4}
+.msg-reply{margin-top:8px;text-align:right}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:var(--input-bg)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--input-bg);border-radius:16px;padding:14px;text-align:center}
+.stat .num{font-size:26px;font-weight:800;line-height:1}
+.stat .lbl{font-size:10px;color:var(--sub);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:6px}
+.hidden{display:none!important}
+.day-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--input-bg);border-radius:14px;margin-bottom:8px;font-weight:700;font-size:13px}
+.day-header.weekend{background:rgba(239,68,68,.12);color:var(--g2)}
+.lesson{padding:10px 14px;background:var(--input-bg);border-radius:12px;margin-bottom:6px;display:flex;gap:12px;align-items:center;font-size:13px}
+.lesson .time{font-weight:800;color:var(--blue);min-width:52px;font-size:12px}
+.lesson .info{flex:1}
+.lesson .info b{display:block;font-size:13px}
+.lesson .info span{font-size:11px;color:var(--sub)}
+.progress-bar{height:6px;background:rgba(128,128,128,.2);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:.3s}
+.pwd-table{width:100%;font-size:11px;border-collapse:collapse}
+.pwd-table th,.pwd-table td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--border)}
+.pwd-table code{background:var(--input-bg);padding:2px 6px;border-radius:6px;font-size:10px;word-break:break-all;user-select:all}
+.lock-notice{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);color:var(--sub);padding:10px 12px;border-radius:12px;font-size:12px;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start}
+.lock-notice svg{width:16px;height:16px;color:var(--g3);flex-shrink:0;margin-top:1px}
+.tabs{display:flex;gap:6px;margin-bottom:12px;background:var(--input-bg);border-radius:14px;padding:4px;overflow-x:auto}
+.tab{flex:1;padding:8px 12px;border-radius:10px;border:none;background:transparent;font-weight:700;font-size:12px;color:var(--sub);cursor:pointer;white-space:nowrap;transition:.2s}
+.tab.on{background:var(--input-bg-focus);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.weekend-label{padding:14px;text-align:center;color:var(--g2);font-weight:800;font-size:13px;background:rgba(239,68,68,.08);border-radius:12px;border:1px dashed rgba(239,68,68,.3);display:flex;align-items:center;justify-content:center;gap:8px}
+.weekend-label svg{width:18px;height:18px}
+.admin-user-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--input-bg);border-radius:12px;margin-bottom:6px;font-size:12px;gap:10px}
+.admin-user-row .info{flex:1;min-width:0}
+.admin-user-row .info b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admin-user-row .info span{font-size:10px;color:var(--sub)}
+.admin-user-row .actions{display:flex;gap:6px;flex-shrink:0}
+.admin-icon-btn{width:34px;height:34px;border-radius:10px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;background:var(--input-bg-focus)}
+.admin-icon-btn svg{width:16px;height:16px}
+.admin-icon-btn.red{background:rgba(239,68,68,.15);color:var(--g2)}
+.admin-icon-btn.blue{background:rgba(0,122,255,.15);color:var(--blue)}
+.admin-icon-btn:active{transform:scale(.94)}
+.admin-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.admin-toolbar .input{flex:1;min-width:150px;padding:10px 12px;font-size:13px}
+
+@media (min-width:600px){
+  .content{padding:20px 32px 180px 32px}
+  .header{padding:20px 32px}
+}
+@media (min-width:1024px){
+  .content{padding:24px 48px 200px 48px}
+  .content-inner{max-width:1100px}
+  .header{padding:22px 48px}
+  .journal{min-width:100%}
+  .sq{width:56px;height:56px;font-size:20px}
+  .grade-grid{gap:10px}
+}
+@media (max-width:420px){
+  .content{padding:12px 10px 170px 10px}
+  .header{padding:12px 14px}
+  .card{padding:12px;border-radius:20px}
+  .nav-btn{height:48px;font-size:8px}
+  .nav-btn svg{width:20px;height:20px}
+  .nav-pill{height:44px}
+  .user-chip{font-size:11px;padding:6px 10px;max-width:130px}
+  .header-info h1{font-size:14px}
+  .logout-btn{font-size:10px;padding:5px 8px}
+  .weekend-label{padding:10px;font-size:12px}
+  .day-header{padding:8px 10px;font-size:12px}
+  .lesson{padding:8px 10px;font-size:12px}
+  .theme-toggle{top:10px;right:10px;width:38px;height:38px}
+  .theme-toggle svg{width:20px;height:20px}
+  .journal .name-col{min-width:100px;max-width:110px;font-size:10px;padding:6px 4px}
+  .jcell{width:40px;height:40px;font-size:13px}
+  .journal{min-width:480px}
+}
+</style>
+</head>
+<body data-theme="light">
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<div class="app" id="app">
+  <div class="toast" id="toast"></div>
+  <div class="theme-toggle" onclick="toggleTheme()" id="themeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></div>
+
+  <div id="loginScreen">
+    <div class="login-inner">
+      <div class="login-hero">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <h2>Электронный дневник</h2>
+        <p>Липецкая область · 48 · RusDreamServer</p>
+      </div>
+      <div class="login-form">
+        <input class="input" id="loginInput" placeholder="Логин" autocomplete="username">
+        <input class="input" id="passInput" type="password" placeholder="Пароль" autocomplete="current-password">
+        <button class="btn green" onclick="doLogin()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Войти
+        </button>
+      </div>
+      <div class="login-foot"></div>
+    </div>
+  </div>
+
+  <div id="appScreen" class="hidden">
+    <div class="header">
+      <div class="header-info">
+        <h1 id="appTitle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span id="appTitleText">Дневник</span>
+        </h1>
+        <button class="logout-btn" onclick="logout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Выйти
+        </button>
+      </div>
+      <div class="user-chip" id="userChip">—</div>
+    </div>
+    <div class="content" id="content"><div class="content-inner" id="contentInner"></div></div>
+    <div class="bottom-nav-wrap"><div class="bottom-nav" id="bottomNav"><div class="nav-pill" id="navPill"></div></div></div>
+  </div>
+
+  <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDgC06dFi3kllR1e_a_ZuK3FUjAMqpWe5k",
+  authDomain: "edu-ru48.firebaseapp.com",
+  projectId: "edu-ru48",
+  storageBucket: "edu-ru48.firebasestorage.app",
+  messagingSenderId: "610625884645",
+  appId: "1:610625884645:web:30541698f1e8ed73dc1f0c",
+  measurementId: "G-YPF7DQYPNC"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const PARALLELS = ['А','Б','В','Г','Д'];
+const CLASSES = [];
+for(let g=1; g<=11; g++) PARALLELS.forEach(p => CLASSES.push(g+p));
+
+const DAYS_SHORT = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+const DAY_NAMES = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"];
+const LOCK_HOURS = 24;
+const DB_VERSION = 14;
+
+const TEACHER_DATA = [
+  {login:'t1',name:'Иванова Анна Петровна',subject:'Алгебра'},
+  {login:'t2',name:'Петрова Мария Сергеевна',subject:'Русский язык'},
+  {login:'t3',name:'Сидоров Виктор Иванович',subject:'Литература'},
+  {login:'t4',name:'Кузнецова Елена Алексеевна',subject:'История'},
+  {login:'t5',name:'Смирнов Дмитрий Олегович',subject:'Информатика'},
+  {login:'t6',name:'Попова Елена Владимировна',subject:'Английский язык'},
+  {login:'t7',name:'Волков Артём Николаевич',subject:'Физика'},
+  {login:'t8',name:'Соколова Дарья Михайловна',subject:'Химия'},
+  {login:'t9',name:'Морозов Максим Павлович',subject:'Биология'},
+  {login:'t10',name:'Лебедева Ксения Сергеевна',subject:'География'},
+  {login:'t11',name:'Никитин Олег Игоревич',subject:'Геометрия'}
+];
+
+// ПАРНЫЕ ИМЯ+ФАМИЛИЯ (женские и мужские отдельно, всегда совпадают по роду)
+const NAMES_M = ["Иван","Пётр","Алексей","Дмитрий","Артём","Максим","Никита","Егор","Кирилл","Андрей","Сергей","Михаил","Николай","Владимир","Роман"];
+const NAMES_F = ["Мария","Анна","Дарья","Елена","Ксения","София","Полина","Алиса","Виктория","Ева","Ольга","Татьяна","Наталья","Ирина","Светлана"];
+const SURNAMES_M = ["Иванов","Петров","Сидоров","Кузнецов","Смирнов","Попов","Волков","Соколов","Морозов","Лебедев","Новиков","Фёдоров","Егоров","Павлов","Козлов"];
+const SURNAMES_F = ["Иванова","Петрова","Сидорова","Кузнецова","Смирнова","Попова","Волкова","Соколова","Морозова","Лебедева","Новикова","Фёдорова","Егорова","Павлова","Козлова"];
+
+function getSubjectsForClass(cls){
+  const grade = parseInt(cls);
+  let list = ['Русский язык','Литература','История','Английский язык','Физкультура','Музыка','ИЗО','Окружающий мир'];
+  if(grade >= 5){ list = ['Русский язык','Литература','История','Английский язык','Информатика','География','Биология','Физкультура']; }
+  if(grade >= 7){ list.push('Физика','Обществознание'); }
+  if(grade >= 8){ list = ['Русский язык','Литература','История','Обществознание','Английский язык','Информатика','Физика','Химия','Биология','География','ОБЖ','Физкультура','Алгебра','Геометрия','Вероятность и статистика']; }
+  return [...new Set(list)];
+}
+
+function buildStudents(){
+  const arr = [];
+  let idx = 0;
+  const PER_CLASS = 30;
+
+  CLASSES.forEach((cls, classIdx) => {
+    // уникальный сдвиг для каждого класса, чтобы имена не совпадали с другими классами
+    const shift = classIdx * 4;
+
+    for(let k = 0; k < PER_CLASS; k++){
+      const isM = k % 2 === 0;
+      // Номер "человека" в классе: 0,1,2,... (по парам: 0-мальчик,1-девочка,2-мальчик,3-девочка...)
+      const pairIndex = Math.floor(k / 2);
+      // Уникальный индекс в массивах 15 имён (модуль 15)
+      const nameIdx = (shift + pairIndex) % 15;
+
+      // Имя И фамилия — из ОДНОГО индекса, оба из правильного рода
+      const first = isM ? NAMES_M[nameIdx] : NAMES_F[nameIdx];
+      const last  = isM ? SURNAMES_M[nameIdx] : SURNAMES_F[nameIdx];
+      const name = first + ' ' + last;
+
+      idx++;
+      arr.push({login:'s'+idx, role:'student', name, class:cls, id:idx, gender: isM ? 'M' : 'F'});
+    }
+  });
+
+  idx++;
+  arr.push({login:'s'+idx, role:'student', name:'София Владимировна', class:'9А', id:idx, gender:'F'});
+  idx++;
+  arr.push({login:'s'+idx, role:'student', name:'Дима Мокохолович', class:'9А', id:idx, gender:'M'});
+  return arr;
+}
+
+let currentUser = null;
+let unsubGrades = null, unsubSched = null, unsubMsg = null, unsubUnlock = null, unsubBadge = null;
+let unreadCount = 0;
+window.ui = { tab:'grades', journalClass:'9А', journalSubject:'Алгебра', msgTab:'inbox', adminTab:'students', adminSearch:'' };
+
+function toast(msg, kind='ok'){
+  const t = document.getElementById('toast');
+  const ico = kind==='err'
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+    : kind==='warn'
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+  t.innerHTML = ico + '<span>' + msg + '</span>';
+  t.className = 'toast show' + (kind==='err'?' err':kind==='warn'?' warn':'');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+function fmtDate(d){ return d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}); }
+function getWeekFromToday(){
+  const out = [];
+  for(let i=0; i<7; i++){
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    d.setHours(0,0,0,0);
+    out.push(d);
+  }
+  return out;
+}
+function isWeekend(d){ const w = d.getDay(); return w === 0 || w === 6; }
+function dayIdxFromDate(d){ const w = d.getDay(); return w===0?6:w-1; }
+function gradeClass(v){
+  if(v===5||v==='5') return 'g5'; if(v===4||v==='4') return 'g4';
+  if(v===3||v==='3') return 'g3'; if(v===2||v==='2') return 'g2';
+  if(v==='Н') return 'N'; if(v==='У') return 'U'; if(v==='Б') return 'B';
+  return '';
+}
+function gradeColor(v){
+  const c = gradeClass(v);
+  return c==='g5'?'#34c759':c==='g4'?'#a3e635':c==='g3'?'#f59e0b':c==='g2'?'#ef4444':
+         c==='N'?'#64748b':c==='U'?'#eab308':c==='B'?'#dc2626':'#999';
+}
+function isLocked(g){
+  if(!g.createdAt) return false;
+  const ms = g.createdAt.toMillis ? g.createdAt.toMillis() : (g.createdAt.seconds*1000);
+  const unlockMs = g.unlockedUntil ? (g.unlockedUntil.toMillis ? g.unlockedUntil.toMillis() : g.unlockedUntil.seconds*1000) : 0;
+  return (Date.now() - ms) > LOCK_HOURS*3600*1000 && Date.now() > unlockMs;
+}
+function valuesToStr(arr){ return arr.filter(x=>x!==undefined && x!==null && x!=='').join('/'); }
+function escapeHtml(str){ return (str||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+window.toggleTheme = function(){
+  const b = document.body;
+  const next = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  b.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateThemeIcon(next);
+};
+function updateThemeIcon(t){
+  const el = document.getElementById('themeIcon');
+  el.innerHTML = t==='dark'
+    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+    : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>';
+}
+
+async function seedIfNeeded(){
+  const sys = await getDoc(doc(db,'system','config'));
+  if(sys.exists() && sys.data().seeded === true && (sys.data().version||0) === DB_VERSION) {
+    console.log('✅ База уже создана, seed пропущен');
+    return;
+  }
+  console.log('🆕 Создаю базу v'+DB_VERSION);
+
+  for(const col of ['grades','users','messages','schedule','remarks']){
+    try{ const s = await getDocs(collection(db,col)); const b = writeBatch(db);
+      s.docs.forEach(d => b.delete(d.ref)); await b.commit();
+    }catch(e){ console.error('Ошибка очистки', col, e); }
+  }
+
+  const batch1 = writeBatch(db);
+  batch1.set(doc(db,'users','admin'), {login:'admin', password:'Admin#2026', role:'admin', name:'Диспетчер'});
+  for(const t of TEACHER_DATA) batch1.set(doc(db,'users',t.login), {...t, role:'teacher', password:'Teacher#2026'});
+  await batch1.commit();
+
+  const students = buildStudents();
+  console.log('Учеников к созданию:', students.length);
+  const CHUNK = 400;
+  for(let i = 0; i < students.length; i += CHUNK){
+    const b = writeBatch(db);
+    const slice = students.slice(i, i + CHUNK);
+    for(const s of slice) b.set(doc(db,'users',s.login), {...s, password:'School#2026'});
+    await b.commit();
+    console.log('Записано учеников:', Math.min(i + CHUNK, students.length), '/', students.length);
+  }
+
+  const demo9 = [
+    {time:'08:10', subject:'Алгебра', teacher:'Иванова Анна Петровна', room:'К101'},
+    {time:'09:20', subject:'Русский язык', teacher:'Петрова Мария Сергеевна', room:'К102'},
+    {time:'10:40', subject:'Физика', teacher:'Волков Артём Николаевич', room:'К202'},
+    {time:'11:50', subject:'История', teacher:'Кузнецова Елена Алексеевна', room:'К404'},
+    {time:'13:00', subject:'Английский язык', teacher:'Попова Елена Владимировна', room:'К303'},
+  ];
+  for(let day=0; day<5; day++){
+    await setDoc(doc(db,'schedule',`9А_${day}`), {class:'9А', day, lessons: demo9});
+    await setDoc(doc(db,'schedule',`9Б_${day}`), {class:'9Б', day, lessons: demo9});
+  }
+
+  const demo1 = [
+    {time:'08:10', subject:'Русский язык', teacher:'Петрова Мария Сергеевна', room:'К001'},
+    {time:'09:20', subject:'Математика', teacher:'Иванова Анна Петровна', room:'К002'},
+    {time:'10:40', subject:'Окружающий мир', teacher:'Морозов Максим Павлович', room:'К003'},
+    {time:'11:50', subject:'Физкультура', teacher:'Волков Артём Николаевич', room:'Спортзал'},
+  ];
+  for(let day=0; day<5; day++){
+    await setDoc(doc(db,'schedule',`1А_${day}`), {class:'1А', day, lessons: demo1});
+  }
+
+  await setDoc(doc(db,'system','config'), {
+    version: DB_VERSION,
+    seeded: true,
+    createdAt: serverTimestamp(),
+    server: 'RusDreamServer'
+  });
+  toast('База создана · ' + students.length + ' учеников', 'warn');
+}
+
+window.doLogin = async function(){
+  const login = document.getElementById('loginInput').value.trim();
+  const pass = document.getElementById('passInput').value;
+  if(!login || !pass){ toast('Введите логин и пароль', 'err'); return; }
+  try{
+    const snap = await getDoc(doc(db,'users',login));
+    if(!snap.exists()){ toast('Пользователь не найден', 'err'); return; }
+    const u = snap.data();
+    if(u.password !== pass){ toast('Неверный пароль', 'err'); return; }
+    currentUser = {...u, login};
+    localStorage.setItem('diaryLogin', login);
+    showApp();
+  }catch(e){ console.error(e); toast('Ошибка: '+e.message, 'err'); }
+};
+window.logout = function(){
+  currentUser = null;
+  localStorage.removeItem('diaryLogin');
+  clearSubs();
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+};
+
+function showApp(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  document.getElementById('userChip').innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>${escapeHtml(currentUser.name)}${currentUser.class?' · '+currentUser.class:''}</span>`;
+  document.getElementById('appTitleText').innerText = currentUser.role==='admin'?'Диспетчер':currentUser.role==='teacher'?'Учитель':'Дневник';
+  ui.tab = currentUser.role==='student'?'grades':(currentUser.role==='teacher'?'journal':'users');
+  if(currentUser.role === 'teacher'){
+    const subs = getSubjectsForClass(ui.journalClass);
+    ui.journalSubject = subs.includes(currentUser.subject) ? currentUser.subject : subs[0];
+  }
+  startBadgeListener();
+  renderNav();
+  renderContent();
+}
+
+const ICONS = {
+  grades:'<path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/>',
+  schedule:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  weighted:'<path d="M12 3v18M5 8h14M5 8l-2 6a3 3 0 0 0 6 0zm14 0l-2 6a3 3 0 0 0 6 0z"/>',
+  annual:'<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M6 9v11M6 9h12M18 9h1.5a2.5 2.5 0 0 0 0-5H18M18 9v11M18 9H6M8 20h8M12 13v7"/>',
+  messages:'<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+  profile:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  journal:'<path d="M9 2h6a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M9 7h6M9 11h6M9 15h4"/>',
+  users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  unlock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+  plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
+  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+  info:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+  empty:'<path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7"/><polyline points="22 17 16 17 14 20 10 20 8 17 2 17"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  pencil:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+  key:'<path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>',
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',
+  refresh:'<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>'
+};
+
+const NAV_ITEMS = {
+  student:[
+    {id:'grades',lbl:'Оценки',svg:ICONS.grades},
+    {id:'schedule',lbl:'Расписание',svg:ICONS.schedule},
+    {id:'weighted',lbl:'Средний',svg:ICONS.weighted},
+    {id:'annual',lbl:'Годовые',svg:ICONS.annual},
+    {id:'messages',lbl:'Письма',svg:ICONS.messages},
+    {id:'profile',lbl:'Профиль',svg:ICONS.profile}
+  ],
+  teacher:[
+    {id:'journal',lbl:'Журнал',svg:ICONS.journal},
+    {id:'annual_t',lbl:'Годовые',svg:ICONS.annual},
+    {id:'schedule_t',lbl:'Расписание',svg:ICONS.schedule},
+    {id:'messages',lbl:'Письма',svg:ICONS.messages},
+    {id:'profile',lbl:'Профиль',svg:ICONS.profile}
+  ],
+  admin:[
+    {id:'users',lbl:'Люди',svg:ICONS.users},
+    {id:'schedule_admin',lbl:'Расписание',svg:ICONS.schedule},
+    {id:'unlock',lbl:'Замки',svg:ICONS.unlock},
+    {id:'profile',lbl:'Профиль',svg:ICONS.profile}
+  ]
+};
+function getNavItems(){ return NAV_ITEMS[currentUser.role] || []; }
+
+function renderNav(){
+  const nav = document.getElementById('bottomNav');
+  const items = getNavItems();
+  nav.querySelectorAll('.nav-btn').forEach(el => el.remove());
+  items.forEach((it, idx) => {
+    const b = document.createElement('button');
+    b.className = 'nav-btn' + (ui.tab===it.id?' active':'');
+    b.dataset.id = it.id;
+    b.dataset.idx = idx;
+    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${it.svg}</svg><span>${it.lbl}</span><span class="nav-badge" data-for="${it.id}">0</span>`;
+    nav.appendChild(b);
+  });
+  items.forEach(it => {
+    const badge = nav.querySelector(`.nav-badge[data-for="${it.id}"]`);
+    if(badge && it.id === 'messages' && unreadCount > 0){
+      badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+      badge.parentElement.classList.add('has-badge');
+    }
+  });
+  // Позиционируем после отрисовки
+  requestAnimationFrame(() => {
+    positionPill(false);
+    setupPillDrag(nav, items);
+  });
+}
+
+function positionPill(animate=true){
+  const nav = document.getElementById('bottomNav');
+  const pill = document.getElementById('navPill');
+  const items = getNavItems();
+  const idx = items.findIndex(it => it.id === ui.tab);
+  if(idx < 0) return;
+  const btn = nav.querySelectorAll('.nav-btn')[idx];
+  if(!btn) return;
+  if(!animate) pill.classList.add('dragging');
+  pill.style.width = btn.offsetWidth + 'px';
+  pill.style.transform = `translateX(${btn.offsetLeft}px)`;
+  if(!animate) requestAnimationFrame(() => pill.classList.remove('dragging'));
+}
+
+function setupPillDrag(nav, items){
+  const pill = document.getElementById('navPill');
+  const btns = () => Array.from(nav.querySelectorAll('.nav-btn'));
+  let dragging = false, startX = 0, startOffset = 0, currentOffset = 0, activePointer = null;
+
+  function activeOffset(){
+    const idx = items.findIndex(it => it.id === ui.tab);
+    const b = btns()[idx];
+    return b ? b.offsetLeft : 0;
+  }
+
+  const onDown = (e) => {
+    if(!e.target.closest('#navPill')) return;
+    dragging = true;
+    activePointer = e.pointerId;
+    try{ pill.setPointerCapture(e.pointerId); }catch(_){}
+    startX = e.clientX;
+    startOffset = activeOffset();
+    currentOffset = startOffset;
+    pill.classList.add('dragging');
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const onMove = (e) => {
+    if(!dragging || e.pointerId !== activePointer) return;
+    currentOffset = startOffset + (e.clientX - startX);
+    const bs = btns();
+    if(!bs.length) return;
+    currentOffset = Math.max(bs[0].offsetLeft, Math.min(bs[bs.length-1].offsetLeft, currentOffset));
+    pill.style.transform = `translateX(${currentOffset}px)`;
+    e.preventDefault();
+  };
+
+  const onUp = (e) => {
+    if(!dragging || e.pointerId !== activePointer) return;
+    dragging = false;
+    activePointer = null;
+    pill.classList.remove('dragging');
+    try{ pill.releasePointerCapture(e.pointerId); }catch(_){}
+    const bs = btns();
+    let bestIdx = 0, bestDist = Infinity;
+    bs.forEach((b, i) => {
+      const d = Math.abs(b.offsetLeft - currentOffset);
+      if(d < bestDist){ bestDist = d; bestIdx = i; }
+    });
+    const newTab = items[bestIdx].id;
+    if(newTab === ui.tab){ positionPill(true); return; }
+    ui.tab = newTab;
+    clearSubs();
+    renderNav();
+    renderContent();
+  };
+
+  document.removeEventListener('pointermove', document.__pillMove);
+  document.removeEventListener('pointerup', document.__pillUp);
+  document.removeEventListener('pointercancel', document.__pillUp);
+
+  document.__pillMove = onMove;
+  document.__pillUp = onUp;
+
+  pill.onpointerdown = onDown;
+  document.addEventListener('pointermove', onMove, {passive:false});
+  document.addEventListener('pointerup', onUp);
+  document.addEventListener('pointercancel', onUp);
+
+  nav.querySelectorAll('.nav-btn').forEach(b => {
+    b.onclick = () => {
+      const t = b.dataset.id;
+      if(t === ui.tab) return;
+      ui.tab = t;
+      clearSubs();
+      renderNav();
+      renderContent();
+    };
+  });
+}
+
+function clearSubs(){
+  if(unsubGrades){ unsubGrades(); unsubGrades = null; }
+  if(unsubSched){ unsubSched(); unsubSched = null; }
+  if(unsubMsg){ unsubMsg(); unsubMsg = null; }
+  if(unsubUnlock){ unsubUnlock(); unsubUnlock = null; }
+}
+
+function startBadgeListener(){
+  if(unsubBadge) unsubBadge();
+  const q = query(collection(db,'messages'));
+  unsubBadge = onSnapshot(q, snap => {
+    let count = 0;
+    snap.docs.forEach(d => {
+      const m = d.data();
+      if(m.from === currentUser.login) return;
+      if(m.read === true) return;
+      let hit = false;
+      if(currentUser.role === 'student'){
+        if(m.toType === 'class' && m.toClass === currentUser.class) hit = true;
+        if(m.toType === 'student' && m.toLogin === currentUser.login) hit = true;
+      } else if(currentUser.role === 'teacher'){
+        if(m.toType === 'teacher' && m.toLogin === currentUser.login) hit = true;
+      } else if(currentUser.role === 'admin'){
+        if(m.toType === 'admin') hit = true;
+      }
+      if(hit) count++;
+    });
+    unreadCount = count;
+    const badge = document.querySelector('.nav-badge[data-for="messages"]');
+    if(badge){
+      if(count > 0){ badge.textContent = count > 99 ? '99+' : count; badge.parentElement.classList.add('has-badge'); }
+      else { badge.parentElement.classList.remove('has-badge'); }
+    }
+  });
+}
+
+async function markMessagesRead(){
+  const all = await getDocs(collection(db,'messages'));
+  const batch = writeBatch(db);
+  let any = false;
+  all.docs.forEach(d => {
+    const m = d.data();
+    if(m.from === currentUser.login) return;
+    if(m.read === true) return;
+    let hit = false;
+    if(currentUser.role === 'student'){
+      if(m.toType === 'class' && m.toClass === currentUser.class) hit = true;
+      if(m.toType === 'student' && m.toLogin === currentUser.login) hit = true;
+    } else if(currentUser.role === 'teacher'){
+      if(m.toType === 'teacher' && m.toLogin === currentUser.login) hit = true;
+    } else if(currentUser.role === 'admin'){
+      if(m.toType === 'admin') hit = true;
+    }
+    if(hit){ batch.update(d.ref, {read:true}); any = true; }
+  });
+  if(any) await batch.commit();
+}
+
+function renderContent(){
+  const c = document.getElementById('contentInner');
+  if(currentUser.role === 'student'){
+    if(ui.tab==='grades') return renderStudentGrades(c);
+    if(ui.tab==='schedule') return renderStudentSchedule(c);
+    if(ui.tab==='weighted') return renderStudentWeighted(c);
+    if(ui.tab==='annual') return renderStudentAnnual(c);
+    if(ui.tab==='messages') return renderMessages(c);
+    if(ui.tab==='profile') return renderProfile(c);
+  } else if(currentUser.role === 'teacher'){
+    if(ui.tab==='journal') return renderJournal(c);
+    if(ui.tab==='annual_t') return renderTeacherAnnual(c);
+    if(ui.tab==='schedule_t') return renderTeacherSchedule(c);
+    if(ui.tab==='messages') return renderMessages(c);
+    if(ui.tab==='profile') return renderProfile(c);
+  } else if(currentUser.role === 'admin'){
+    if(ui.tab==='users') return renderAdminUsers(c);
+    if(ui.tab==='schedule_admin') return renderAdminSchedule(c);
+    if(ui.tab==='unlock') return renderAdminUnlock(c);
+    if(ui.tab==='profile') return renderProfile(c);
+  }
+}
+
+function renderStudentGrades(c){
+  c.innerHTML = `<div class="card"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.info}</svg>Загрузка...</div></div>`;
+  if(unsubGrades) unsubGrades();
+  if(unsubSched) unsubSched();
+
+  const gradesQ = query(collection(db,'grades'), where('studentLogin','==',currentUser.login));
+  unsubGrades = onSnapshot(gradesQ, gradesSnap => {
+    const grades = gradesSnap.docs.map(d => ({id:d.id, ...d.data()}));
+    const gradesMap = {};
+    grades.forEach(g => {
+      const key = g.subject + '||' + g.date;
+      if(!gradesMap[key]) gradesMap[key] = [];
+      gradesMap[key].push(g);
+    });
+
+    onSnapshot(query(collection(db,'remarks'), where('studentLogin','==',currentUser.login)), remSnap => {
+      const remarks = remSnap.docs.map(d => d.data());
+
+      onSnapshot(collection(db,'schedule'), schedSnap => {
+        const sched = schedSnap.docs.map(d => d.data()).filter(s => s.class === currentUser.class);
+        const days = getWeekFromToday();
+        let html = '';
+        days.forEach(d => {
+          const di = dayIdxFromDate(d);
+          const dStr = fmtDate(d);
+          const daySched = sched.find(s => s.day === di);
+          const isWknd = isWeekend(d);
+          const isToday = d.toDateString() === new Date().toDateString();
+          const dayRemarks = remarks.filter(r => r.date === dStr);
+
+          let remarksHtml = '';
+          if(dayRemarks.length){
+            remarksHtml = `
+              <div style="margin-top:10px;padding:12px;border-radius:12px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35)">
+                <div style="font-size:11px;font-weight:800;color:var(--g3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  Замечания
+                </div>
+                ${dayRemarks.map(r => `<div style="font-size:12px;padding:6px 0;border-bottom:1px dashed rgba(245,158,11,.3);line-height:1.45">
+                  <b>${escapeHtml(r.subject)}</b> · ${escapeHtml(r.teacher || '')}<br>${escapeHtml(r.text)}
+                </div>`).join('')}
+              </div>`;
+          }
+
+          html += `<div class="card">
+            <div class="day-header ${isWknd?'weekend':''}">
+              <span>${DAYS_SHORT[di]} · ${DAY_NAMES[di]} ${isToday?'<span class="badge" style="background:#34c759;color:#fff;margin-left:6px">Сегодня</span>':''}</span>
+              <span style="font-size:11px;opacity:.85">${dStr}</span>
+            </div>
+            ${isWknd && (!daySched || !daySched.lessons || !daySched.lessons.length) 
+              ? `<div class="weekend-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.calendar}</svg>Выходной</div>`
+              : (daySched && daySched.lessons && daySched.lessons.length
+                ? daySched.lessons.map(l => {
+                    const list = gradesMap[l.subject + '||' + dStr] || [];
+                    const badges = list.map(g => `<span class="mini-grade ${gradeClass(g.value)}">${g.value}</span>`).join('');
+                    return `<div class="lesson">
+                      <div class="time">${l.time}</div>
+                      <div class="info"><b>${escapeHtml(l.subject)}</b><span>${escapeHtml(l.teacher||'')} · каб. ${escapeHtml(l.room||'—')}</span></div>
+                      <div style="display:flex;gap:4px;flex-wrap:wrap">${badges}</div>
+                    </div>`;
+                  }).join('')
+                : '<div class="empty" style="padding:14px">Нет уроков</div>')}
+            ${remarksHtml}
+          </div>`;
+        });
+        c.innerHTML = html;
+      });
+    });
+  });
+}
+
+function renderStudentSchedule(c){
+  c.innerHTML = `<div class="card"><div class="empty">Загрузка...</div></div>`;
+  if(unsubSched) unsubSched();
+  unsubSched = onSnapshot(collection(db,'schedule'), snap => {
+    const all = snap.docs.map(d => ({id:d.id, ...d.data()})).filter(s => s.class === currentUser.class);
+    const days = getWeekFromToday();
+    let html = '';
+    days.forEach(d => {
+      const di = dayIdxFromDate(d);
+      const daySched = all.find(s => s.day === di);
+      const isWknd = isWeekend(d);
+      const isToday = d.toDateString() === new Date().toDateString();
+      html += `<div class="card">
+        <div class="day-header ${isWknd?'weekend':''}">
+          <span>${DAYS_SHORT[di]} · ${DAY_NAMES[di]} ${isToday?'<span class="badge" style="background:#34c759;color:#fff;margin-left:6px">Сегодня</span>':''}</span>
+          <span style="font-size:11px;opacity:.85">${fmtDate(d)}</span>
+        </div>
+        ${isWknd && (!daySched || !daySched.lessons || !daySched.lessons.length)
+          ? `<div class="weekend-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.calendar}</svg>Выходной</div>`
+          : (daySched && daySched.lessons && daySched.lessons.length
+              ? daySched.lessons.map(l => `<div class="lesson"><div class="time">${l.time}</div><div class="info"><b>${escapeHtml(l.subject)}</b><span>${escapeHtml(l.teacher||'')} · каб. ${escapeHtml(l.room||'—')}</span></div></div>`).join('')
+              : '<div class="empty" style="padding:14px">Нет уроков</div>')}
+      </div>`;
+    });
+    c.innerHTML = html;
+  });
+}
+
+function renderStudentWeighted(c){
+  c.innerHTML = `<div class="card"><div class="empty">Загрузка...</div></div>`;
+  if(unsubGrades) unsubGrades();
+  const q = query(collection(db,'grades'), where('studentLogin','==',currentUser.login));
+  unsubGrades = onSnapshot(q, snap => {
+    const grades = snap.docs.map(d => d.data()).filter(g => typeof g.value === 'number');
+    const bySub = {};
+    grades.forEach(g => {
+      if(!bySub[g.subject]) bySub[g.subject] = [];
+      bySub[g.subject].push(g);
+    });
+    let html = '';
+    const subjects = getSubjectsForClass(currentUser.class);
+    const sorted = [
+      ...Object.keys(bySub).sort(),
+      ...subjects.filter(s => !bySub[s])
+    ];
+    if(!sorted.length){
+      c.innerHTML = `<div class="card"><div class="empty">Нет данных</div></div>`;
+      return;
+    }
+    sorted.forEach(sub => {
+      const arr = bySub[sub] || [];
+      const digits = arr.map(g => `<span class="score-digit ${gradeClass(g.value)}">${g.value}</span>`).join('');
+      const avg = arr.length ? (arr.reduce((s,g) => s + g.value, 0) / arr.length).toFixed(2) : '—';
+      html += `<div class="subject-score">
+        <div style="flex:1;min-width:120px">
+          <div class="sname">${escapeHtml(sub)}</div>
+          <div class="score-avg">Ср. ${avg}${arr.length?' · '+arr.length+' оц.':''}</div>
+        </div>
+        <div class="score-digits">${digits || '<span style="color:var(--sub);font-size:12px">нет оценок</span>'}</div>
+      </div>`;
+    });
+    c.innerHTML = `<div class="card"><h3>Средний балл · ${currentUser.class}</h3>${html}</div>`;
+  });
+}
+
+function renderStudentAnnual(c){
+  c.innerHTML = `<div class="card"><div class="empty">Загрузка...</div></div>`;
+  if(unsubGrades) unsubGrades();
+  const q = query(collection(db,'grades'), where('studentLogin','==',currentUser.login), where('type','==','Годовая'));
+  unsubGrades = onSnapshot(q, snap => {
+    const arr = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    if(!arr.length){
+      c.innerHTML = `<div class="card"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.annual}</svg>Годовые ещё не выставлены</div></div>`;
+      return;
+    }
+    c.innerHTML = arr.map(g => `
+      <div class="card row">
+        <div><b>${escapeHtml(g.subject)}</b><div style="font-size:11px;color:var(--sub);margin-top:2px">${g.date||''} · ${escapeHtml(g.teacher||'')}</div></div>
+        <div class="sq ${gradeClass(g.value)}" style="width:54px;height:54px;font-size:22px">${g.value}</div>
+      </div>
+    `).join('');
+  });
+}
+
+function renderJournal(c){
+  const classSubs = getSubjectsForClass(ui.journalClass);
+  const list = classSubs.includes(currentUser.subject)
+    ? classSubs
+    : [currentUser.subject, ...classSubs];
+  if(!list.includes(ui.journalSubject)) ui.journalSubject = list[0];
+
+  c.innerHTML = `
+    <div class="card">
+      <div class="form-group">
+        <label class="label">Класс</label>
+        <select class="input" onchange="window.__changeJournalClass(this.value)">
+          ${CLASSES.map(cl => `<option ${ui.journalClass===cl?'selected':''}>${cl}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="label">Предмет</label>
+        <select class="input" onchange="window.__changeJournalSubject(this.value)">
+          ${list.map(s => `<option ${ui.journalSubject===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="lock-notice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.lock}</svg>
+      <div>Оценки можно редактировать в течение 24 часов. После — только администратор может снять блокировку.</div>
+    </div>
+    <div class="card">
+      <h3>Журнал · ${ui.journalClass} · ${ui.journalSubject} · 7 дней</h3>
+      <div class="journal-wrap"><table class="journal" id="journalTable"><tbody><tr><td>Загрузка...</td></tr></tbody></table></div>
+      <div class="journal-hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.info}</svg>
+        <div>Пунктирная клетка с «+» — поставьте оценку. Сб и Вс — выходные. Основная/Дополнительная сохранятся как <b>5/4</b>.</div>
+      </div>
+    </div>
+  `;
+  loadJournalTable();
+}
+
+window.__changeJournalClass = function(cls){
+  ui.journalClass = cls;
+  const subs = getSubjectsForClass(cls);
+  const list = subs.includes(currentUser.subject) ? subs : [currentUser.subject, ...subs];
+  if(!list.includes(ui.journalSubject)) ui.journalSubject = list[0];
+  renderJournal(document.getElementById('contentInner'));
+};
+window.__changeJournalSubject = function(sub){
+  ui.journalSubject = sub;
+  renderJournal(document.getElementById('contentInner'));
+};
+
+async function loadJournalTable(){
+  const studentsSnap = await getDocs(query(collection(db,'users'), where('role','==','student'), where('class','==',ui.journalClass)));
+  const students = studentsSnap.docs.map(d => ({...d.data(), login:d.id})).sort((a,b) => a.name.localeCompare(b.name));
+  const days = getWeekFromToday();
+  const tbl = document.getElementById('journalTable');
+  if(!tbl) return;
+  if(!students.length){
+    tbl.innerHTML = `<tbody><tr><td style="padding:14px;text-align:center;color:var(--sub)">Нет учеников в классе ${ui.journalClass}</td></tr></tbody>`;
+    return;
+  }
+  const plusSvg = `<svg class="plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">${ICONS.plus}</svg>`;
+  let head = '<tr><th></th>' + days.map(d => {
+    const di = dayIdxFromDate(d);
+    const wk = isWeekend(d) ? ' weekend' : '';
+    return `<th class="${wk}">${DAYS_SHORT[di]}<br>${fmtDate(d)}</th>`;
+  }).join('') + '</tr>';
+  let body = students.map(st => {
+    let row = `<tr><td class="name-col">${escapeHtml(st.name)}</td>`;
+    days.forEach(d => {
+      const isWknd = isWeekend(d);
+      const dStr = fmtDate(d);
+      if(isWknd){
+        row += `<td><div class="jcell weekend" data-weekend="1"></div></td>`;
+      } else {
+        row += `<td><div class="jcell" data-student="${st.login}" data-date="${dStr}" data-full="${d.toISOString().split('T')[0]}">${plusSvg}</div></td>`;
+      }
+    });
+    row += '</tr>';
+    return row;
+  }).join('');
+  tbl.innerHTML = `<thead>${head}</thead><tbody>${body}</tbody>`;
+
+  if(unsubGrades) unsubGrades();
+  const q = query(collection(db,'grades'), where('subject','==',ui.journalSubject), where('class','==',ui.journalClass));
+  unsubGrades = onSnapshot(q, snap => {
+    const grades = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    tbl.querySelectorAll('.jcell:not(.weekend)').forEach(cell => {
+      cell.className = 'jcell';
+      cell.innerHTML = plusSvg;
+      cell.dataset.grades = '[]';
+    });
+    const cells = {};
+    grades.forEach(g => {
+      const key = g.studentLogin + '||' + g.date;
+      if(!cells[key]) cells[key] = [];
+      cells[key].push(g);
+    });
+    Object.keys(cells).forEach(key => {
+      const [st, dt] = key.split('||');
+      const cell = tbl.querySelector(`.jcell[data-student="${st}"][data-date="${dt}"]`);
+      if(!cell) return;
+      const list = cells[key];
+      const valStr = valuesToStr(list.map(g => g.value));
+      cell.classList.add('filled', gradeClass(list[0].value));
+      if(list.some(isLocked)) cell.classList.add('locked');
+      cell.innerHTML = `<span>${valStr}</span>`;
+      cell.dataset.grades = JSON.stringify(list.map(g => ({id:g.id, value:g.value, category:g.category, locked:isLocked(g), type:g.type})));
+    });
+    tbl.querySelectorAll('.jcell:not(.weekend)').forEach(cell => {
+      cell.onclick = () => openGradePicker(cell.dataset.student, cell.dataset.date, cell.dataset.full, cell.dataset.grades);
+    });
+  });
+}
+
+window.openGradePicker = function(studentLogin, dateStr, fullDate, gradesJson){
+  const rowEl = document.querySelector(`.jcell[data-student="${studentLogin}"]`)?.closest('tr');
+  const studentName = rowEl?.querySelector('.name-col')?.innerText || studentLogin;
+  const existing = JSON.parse(gradesJson || '[]');
+  const locked = existing.some(g => g.locked);
+  const isAdmin = currentUser.role === 'admin';
+  if(locked && !isAdmin){
+    document.getElementById('modal').innerHTML = `
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--g3)">${ICONS.lock}</svg> Заблокировано</h3>
+      <div class="lock-notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.lock}</svg><div>Оценка за ${dateStr} заблокирована.<br>Обратитесь к администратору.</div></div>
+      <button class="btn ghost" onclick="closeModal()">Понятно</button>`;
+    document.getElementById('modalBg').classList.add('show');
+    return;
+  }
+  const main = existing.find(g => g.category === 'main' || !g.category);
+  const extra = existing.find(g => g.category === 'extra');
+  document.getElementById('modal').innerHTML = `
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.journal}</svg> ${escapeHtml(studentName)} · ${dateStr}</h3>
+    <div class="form-group"><label class="label">Категория</label>
+      <div class="cat-row">
+        <div class="cat ${!extra || existing.length<2?'on':''}" data-cat="main">Основная${main?' ('+main.value+')':''}</div>
+        <div class="cat ${extra?'on':''}" data-cat="extra">Дополнительная${extra?' ('+extra.value+')':''}</div>
+      </div>
+    </div>
+    <div class="form-group"><label class="label">Оценка / статус</label>
+      <div class="pick-row">${[5,4,3,2].map(v=>`<div class="pick g${v}" data-v="${v}">${v}</div>`).join('')}</div>
+      <div class="pick-row"><div class="pick N" data-v="Н">Н</div><div class="pick U" data-v="У">У</div><div class="pick B" data-v="Б">Б</div></div>
+    </div>
+    <div class="form-group"><label class="label">Тип работы</label>
+      <select class="input" id="gradeType">
+        <option value="СР">Самостоятельная</option><option value="КР">Контрольная</option>
+        <option value="ДЗ">Домашняя</option><option value="ОУ">Ответ на уроке</option>
+        <option value="Годовая">Годовая</option>
+      </select>
+    </div>
+    <div class="row" style="gap:8px">
+      <button class="btn ghost" style="flex:1" onclick="closeModal()">Отмена</button>
+      <button class="btn green" style="flex:2" onclick="saveGrade('${studentLogin}','${dateStr}','${fullDate}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.save}</svg> Сохранить
+      </button>
+    </div>
+    <div class="form-group" style="margin-top:14px">
+      <label class="label">Замечание</label>
+      <textarea class="input" id="remarkText" rows="2" placeholder="Например: разговаривал на уроке..." style="resize:none"></textarea>
+      <button class="btn ghost" style="margin-top:8px" onclick="saveRemark('${studentLogin}','${dateStr}','${fullDate}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Добавить замечание
+      </button>
+    </div>
+    ${main?`<div class="remove-btn" onclick="removeGrade('${main.id}','${studentLogin}','${dateStr}','main')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.trash}</svg>Убрать основную (${main.value})</div>`:''}
+    ${extra?`<div class="remove-btn" onclick="removeGrade('${extra.id}','${studentLogin}','${dateStr}','extra')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.trash}</svg>Убрать дополнительную (${extra.value})</div>`:''}
+    ${existing.length>1?`<div class="remove-btn" onclick="clearGrade('${studentLogin}','${dateStr}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.trash}</svg>Убрать все за день</div>`:''}`;
+  window.__pickGrade = null;
+  window.__pickCat = extra ? 'extra' : 'main';
+  document.querySelectorAll('.cat').forEach(el => {
+    el.onclick = () => { document.querySelectorAll('.cat').forEach(x=>x.classList.remove('on')); el.classList.add('on'); window.__pickCat = el.dataset.cat; };
+  });
+  document.querySelectorAll('.pick').forEach(el => {
+    el.onclick = () => { document.querySelectorAll('.pick').forEach(x=>x.classList.remove('on')); el.classList.add('on'); window.__pickGrade = el.dataset.v; };
+  });
+  document.getElementById('modalBg').classList.add('show');
+};
+window.closeModal = function(){ document.getElementById('modalBg').classList.remove('show'); };
+
+window.saveGrade = async function(studentLogin, dateStr, fullDate){
+  if(!window.__pickGrade){ toast('Выберите оценку', 'err'); return; }
+  const type = document.getElementById('gradeType').value;
+  const raw = window.__pickGrade;
+  const value = isNaN(parseInt(raw)) ? raw : parseInt(raw);
+  const category = window.__pickCat || 'main';
+  try{
+    const q = query(collection(db,'grades'),
+      where('studentLogin','==',studentLogin), where('subject','==',ui.journalSubject), where('date','==',dateStr));
+    const snap = await getDocs(q);
+    for(const d of snap.docs){ const cat = d.data().category || 'main'; if(cat === category) await deleteDoc(d.ref); }
+    await addDoc(collection(db,'grades'), {
+      studentLogin, class: ui.journalClass, subject: ui.journalSubject,
+      value, type, category, date: dateStr, fullDate,
+      teacher: currentUser.name, teacherLogin: currentUser.login,
+      createdAt: serverTimestamp()
+    });
+    toast('Оценка выставлена'); closeModal();
+  }catch(e){ toast('Ошибка: '+e.message, 'err'); }
+};
+
+window.saveRemark = async function(studentLogin, dateStr, fullDate){
+  const el = document.getElementById('remarkText');
+  const text = el ? el.value.trim() : '';
+  if(!text){ toast('Введите текст замечания', 'err'); return; }
+  try{
+    await addDoc(collection(db,'remarks'), {
+      studentLogin, class: ui.journalClass, subject: ui.journalSubject,
+      date: dateStr, fullDate, text,
+      teacher: currentUser.name, teacherLogin: currentUser.login,
+      createdAt: serverTimestamp()
+    });
+    toast('Замечание добавлено');
+    closeModal();
+  }catch(e){ toast('Ошибка: '+e.message, 'err'); }
+};
+
+window.removeGrade = async function(id, studentLogin, dateStr, category){
+  try{
+    console.log('🗑 removeGrade:', {id, studentLogin, dateStr, category});
+    let deleted = false;
+    if(id){
+      try{ await deleteDoc(doc(db,'grades',id)); deleted = true; }
+      catch(err){ console.warn('delete by ID failed:', err); }
+    }
+    if(!deleted && studentLogin && dateStr){
+      const q = query(collection(db,'grades'),
+        where('studentLogin','==',studentLogin),
+        where('subject','==',ui.journalSubject),
+        where('date','==',dateStr));
+      const snap = await getDocs(q);
+      for(const d of snap.docs){
+        const cat = d.data().category || 'main';
+        if(cat === (category || 'main')){ await deleteDoc(d.ref); deleted = true; }
+      }
+    }
+    toast(deleted ? 'Оценка убрана' : 'Нечего удалять');
+    closeModal();
+  }catch(e){ console.error(e); toast('Ошибка: '+e.message, 'err'); }
+};
+
+window.clearGrade = async function(studentLogin, dateStr){
+  const q = query(collection(db,'grades'), where('studentLogin','==',studentLogin), where('subject','==',ui.journalSubject), where('date','==',dateStr));
+  const snap = await getDocs(q);
+  for(const d of snap.docs) await deleteDoc(d.ref);
+  toast('Удалено'); closeModal();
+};
+
+function renderTeacherAnnual(c){
+  c.innerHTML = `<div class="card"><h3>Годовые</h3>
+    <div class="form-group"><label class="label">Класс</label>
+      <select class="input" id="aClass" onchange="window.__aClass=this.value">${CLASSES.map(cl=>`<option ${ui.journalClass===cl?'selected':''}>${cl}</option>`).join('')}</select>
+    </div>
+    <div class="form-group"><label class="label">Предмет</label>
+      <input class="input" value="${ui.journalSubject}" readonly style="background:var(--input-bg);opacity:.8">
+    </div>
+    <button class="btn green" onclick="autoAnnual()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.annual}</svg>Выставить годовые</button>
+  </div>
+  <div class="card"><h3>Результаты</h3><div id="annualResult" class="empty">Выберите класс</div></div>`;
+  window.__aClass = ui.journalClass || CLASSES[0];
+}
+window.autoAnnual = async function(){
+  const cls = window.__aClass || ui.journalClass || CLASSES[0];
+  const ss = await getDocs(query(collection(db,'users'), where('role','==','student'), where('class','==',cls)));
+  const students = ss.docs.map(d => ({...d.data(), login:d.id}));
+  const gs = await getDocs(query(collection(db,'grades'), where('subject','==',ui.journalSubject), where('class','==',cls)));
+  const grades = gs.docs.map(d => d.data()).filter(g => typeof g.value === 'number' && g.type !== 'Годовая');
+  const result = document.getElementById('annualResult');
+  result.innerHTML = 'Обработка...';
+  let html = '';
+  for(const st of students){
+    const arr = grades.filter(g => g.studentLogin === st.login);
+    if(!arr.length){ html += `<div style="font-size:12px;margin-bottom:6px"><b>${escapeHtml(st.name)}</b> — нет оценок</div>`; continue; }
+    const sum = arr.reduce((s,g) => s + g.value, 0);
+    const avg = sum / arr.length;
+    const annual = Math.round(avg);
+    html += `<div class="row" style="margin-bottom:6px;font-size:12px"><b>${escapeHtml(st.name)}</b><span>${arr.length} оц. · ср. <b>${avg.toFixed(2)}</b> → <span class="badge" style="background:${gradeColor(annual)};color:#fff">${annual}</span></span></div>`;
+    const old = await getDocs(query(collection(db,'grades'), where('studentLogin','==',st.login), where('subject','==',ui.journalSubject), where('type','==','Годовая')));
+    for(const o of old.docs) await deleteDoc(o.ref);
+    await addDoc(collection(db,'grades'), {
+      studentLogin: st.login, class: cls, subject: ui.journalSubject,
+      value: annual, type:'Годовая', category:'main',
+      date: new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}),
+      teacher: currentUser.name, teacherLogin: currentUser.login, createdAt: serverTimestamp()
+    });
+  }
+  result.innerHTML = html || 'Нет учеников';
+  toast('Годовые выставлены');
+};
+
+function renderTeacherSchedule(c){
+  c.innerHTML = `<div class="card"><h3>Ваше расписание · ${escapeHtml(currentUser.subject)}</h3><div id="tsched" class="empty">Загрузка...</div></div>`;
+  if(unsubSched) unsubSched();
+  unsubSched = onSnapshot(collection(db,'schedule'), snap => {
+    const all = snap.docs.map(d => ({...d.data(), id:d.id}));
+    let html = '';
+    for(let d=0; d<7; d++){
+      const dayLessons = [];
+      all.forEach(s => { s.lessons?.forEach(l => { if(l.teacher === currentUser.name && s.day === d) dayLessons.push({...l, class:s.class}); }); });
+      const isWknd = d >= 5;
+      if(!dayLessons.length && isWknd){
+        html += `<div class="weekend-label" style="margin-top:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.calendar}</svg>${DAY_NAMES[d]} — Выходной</div>`;
+        continue;
+      }
+      if(!dayLessons.length) continue;
+      html += `<div class="day-header" style="margin-top:8px">${DAY_NAMES[d]}</div>`;
+      dayLessons.sort((a,b) => a.time.localeCompare(b.time));
+      dayLessons.forEach(l => { html += `<div class="lesson"><div class="time">${l.time}</div><div class="info"><b>${escapeHtml(l.class)} · ${escapeHtml(l.subject)}</b><span>каб. ${escapeHtml(l.room||'—')}</span></div></div>`; });
+    }
+    document.getElementById('tsched').innerHTML = html || '<div class="empty">Расписание не создано</div>';
+  });
+}
+
+async function renderMessages(c){
+  const isStudent = currentUser.role === 'student';
+  const isTeacher = currentUser.role === 'teacher';
+  let recipientsHtml = '';
+  if(isStudent){
+    const snap = await getDocs(query(collection(db,'users'), where('role','==','teacher')));
+    const teachers = snap.docs.map(d => ({...d.data(), login:d.id}));
+    recipientsHtml = `<select class="input" id="msgTo">${teachers.map(t=>`<option value="${t.login}">${escapeHtml(t.name)} · ${escapeHtml(t.subject||'')}</option>`).join('')}</select>`;
+  } else if(isTeacher){
+    const snap = await getDocs(query(collection(db,'users'), where('role','==','student')));
+    const students = snap.docs.map(d => ({...d.data(), login:d.id}));
+    recipientsHtml = `<select class="input" id="msgTo"><option value="class:all">Всем классам</option>${CLASSES.map(cl=>`<option value="class:${cl}">Класс ${cl}</option>`).join('')}<optgroup label="Конкретный">${students.map(s=>`<option value="student:${s.login}">${escapeHtml(s.name)} · ${s.class}</option>`).join('')}</optgroup></select>`;
+  }
+  c.innerHTML = `
+    <div class="card">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.messages}</svg> Новое письмо</h3>
+      <div class="form-group"><label class="label">Кому</label>${recipientsHtml}</div>
+      <div class="form-group"><label class="label">Текст</label><textarea class="input" id="msgText" rows="3" placeholder="Введите текст..." style="resize:none"></textarea></div>
+      <button class="btn green" onclick="sendMsg()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Отправить</button>
+    </div>
+    <div class="card">
+      <div class="tabs">
+        <button class="tab ${ui.msgTab==='inbox'?'on':''}" onclick="ui.msgTab='inbox';renderMessages(document.getElementById('contentInner'))">Входящие</button>
+        <button class="tab ${ui.msgTab==='sent'?'on':''}" onclick="ui.msgTab='sent';renderMessages(document.getElementById('contentInner'))">Отправленные</button>
+      </div>
+      <div id="msgList" class="empty">Загрузка...</div>
+    </div>`;
+  loadMessages();
+  if(ui.msgTab === 'inbox') markMessagesRead();
+}
+
+function loadMessages(){
+  if(unsubMsg) unsubMsg();
+  unsubMsg = onSnapshot(collection(db,'messages'), snap => {
+    const all = snap.docs.map(d => ({id:d.id, ...d.data()})).sort((a,b) => (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
+    let list = [];
+    if(ui.msgTab === 'sent') list = all.filter(m => m.from === currentUser.login);
+    else {
+      if(currentUser.role === 'student') list = all.filter(m => m.from !== currentUser.login && ((m.toType === 'class' && m.toClass === currentUser.class) || (m.toType === 'student' && m.toLogin === currentUser.login)));
+      else if(currentUser.role === 'teacher') list = all.filter(m => m.from !== currentUser.login && m.toType === 'teacher' && m.toLogin === currentUser.login);
+      else if(currentUser.role === 'admin') list = all.filter(m => m.from !== currentUser.login && m.toType === 'admin');
+    }
+    const el = document.getElementById('msgList');
+    if(!el) return;
+    if(!list.length){ el.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.empty}</svg>${ui.msgTab==='inbox'?'Входящих нет':'Отправленных нет'}</div>`; return; }
+    el.innerHTML = list.map(m => {
+      let toLabel = '';
+      if(m.toType === 'class') toLabel = m.toClass === 'all' ? 'Всем классам' : 'Класс ' + m.toClass;
+      else if(m.toType === 'teacher') toLabel = 'Учителю ' + escapeHtml(m.toName || m.toLogin);
+      else if(m.toType === 'student') toLabel = 'Ученику ' + escapeHtml(m.toName || m.toLogin);
+      else if(m.toType === 'admin') toLabel = 'Админу';
+      const fromLabel = m.fromName ? escapeHtml(m.fromName) + ' (' + (m.fromRole||'') + ')' : escapeHtml(m.from);
+      const dirLine = ui.msgTab === 'inbox' ? `От: <b style="display:inline">${fromLabel}</b> · ${m.date||''}` : `Кому: <b style="display:inline">${toLabel}</b> · ${m.date||''}`;
+      const unread = ui.msgTab === 'inbox' && m.read !== true;
+      return `<div class="msg-item ${unread?'unread':''}"><b>${dirLine}</b><div class="body">${escapeHtml(m.text)}</div>
+        ${ui.msgTab==='inbox' && (currentUser.role === 'teacher' || currentUser.role === 'student') ? `<div class="msg-reply"><button class="btn small ghost" onclick="replyTo('${m.from}','${(m.fromName||'').replace(/'/g,'')}')">Ответить</button></div>` : ''}</div>`;
+    }).join('');
+  });
+}
+
+window.replyTo = function(login, name){
+  const sel = document.getElementById('msgTo');
+  if(!sel) return;
+  if(currentUser.role === 'student'){
+    const opt = Array.from(sel.options).find(o => o.value === login);
+    if(opt) sel.value = login;
+  } else if(currentUser.role === 'teacher'){
+    const opt = Array.from(sel.options).find(o => o.value === 'student:' + login);
+    if(opt) sel.value = 'student:' + login;
+    else { const o = document.createElement('option'); o.value = 'student:' + login; o.text = name + ' (ответ)'; sel.appendChild(o); sel.value = 'student:' + login; }
+  }
+  document.getElementById('msgText').focus();
+  toast('Получатель подставлен');
+};
+
+window.sendMsg = async function(){
+  const toVal = document.getElementById('msgTo').value;
+  const text = document.getElementById('msgText').value.trim();
+  if(!text){ toast('Введите текст', 'err'); return; }
+  let toType, toLogin, toClass, toName = '';
+  if(currentUser.role === 'student'){
+    toType = 'teacher'; toLogin = toVal;
+    const snap = await getDoc(doc(db,'users',toVal));
+    if(snap.exists()) toName = snap.data().name;
+  } else if(currentUser.role === 'teacher'){
+    if(toVal.startsWith('class:')){ toClass = toVal.slice(6); toType = 'class'; }
+    else if(toVal.startsWith('student:')){ toType = 'student'; toLogin = toVal.slice(8); const snap = await getDoc(doc(db,'users',toLogin)); if(snap.exists()) toName = snap.data().name; }
+  }
+  await addDoc(collection(db,'messages'), {
+    from: currentUser.login, fromName: currentUser.name, fromRole: currentUser.role,
+    toType, toLogin: toLogin||null, toClass: toClass||null, toName: toName||null, text, read: false,
+    date: new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}),
+    createdAt: serverTimestamp()
+  });
+  document.getElementById('msgText').value = '';
+  toast('Письмо отправлено');
+};
+
+async function renderAdminUsers(c){
+  c.innerHTML = `<div class="card"><div class="empty">Загрузка пользователей...</div></div>`;
+
+  const snap = await getDocs(collection(db,'users'));
+  const users = snap.docs.map(d => ({...d.data(), login:d.id}));
+  const teachers = users.filter(u => u.role === 'teacher');
+  const students = users.filter(u => u.role === 'student');
+  const admin = users.find(u => u.role === 'admin');
+
+  const search = (ui.adminSearch || '').toLowerCase();
+  const filterFn = u => !search || (u.name||'').toLowerCase().includes(search) || (u.login||'').toLowerCase().includes(search) || (u.class||'').toLowerCase().includes(search);
+  const filteredStudents = students.filter(filterFn);
+  const filteredTeachers = teachers.filter(filterFn);
+
+  c.innerHTML = `
+    <div class="card">
+      <div class="admin-toolbar">
+        <input class="input" id="adminSearchInput" placeholder="Поиск..." value="${escapeHtml(ui.adminSearch||'')}" oninput="window.__adminSearch(this.value)">
+        <button class="btn small green" onclick="openCreateUser()" style="width:auto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.plus}</svg>
+          Создать
+        </button>
+      </div>
+      <div class="tabs" style="margin-bottom:0">
+        <button class="tab ${ui.adminTab==='students'?'on':''}" onclick="ui.adminTab='students';renderAdminUsers(document.getElementById('contentInner'))">Ученики (${filteredStudents.length})</button>
+        <button class="tab ${ui.adminTab==='teachers'?'on':''}" onclick="ui.adminTab='teachers';renderAdminUsers(document.getElementById('contentInner'))">Учителя (${filteredTeachers.length})</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Администратор</h3>
+      <table class="pwd-table">
+        <tr><td><b>${admin?.login||'admin'}</b></td><td><code>${admin?.password||'—'}</code></td></tr>
+      </table>
+    </div>
+
+    ${ui.adminTab==='teachers' ? `
+    <div class="card">
+      <h3>Учителя (${filteredTeachers.length})</h3>
+      ${filteredTeachers.map(t => `
+        <div class="admin-user-row">
+          <div class="info">
+            <b>${escapeHtml(t.name)}</b>
+            <span>${t.login} · ${escapeHtml(t.subject||'')}</span>
+          </div>
+          <div class="actions">
+            <button class="admin-icon-btn blue" onclick="openEditUser('${t.login}')" title="Изменить">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.pencil}</svg>
+            </button>
+            <button class="admin-icon-btn red" onclick="confirmDeleteUser('${t.login}','${escapeHtml(t.name)}')" title="Удалить">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.trash}</svg>
+            </button>
+          </div>
+        </div>
+      `).join('') || '<div class="empty">Нет учителей</div>'}
+    </div>
+    ` : `
+    <div class="card">
+      <h3>Ученики (${filteredStudents.length})</h3>
+      ${filteredStudents.length ? filteredStudents.slice(0, 100).map(s => `
+        <div class="admin-user-row">
+          <div class="info">
+            <b>${escapeHtml(s.name)}</b>
+            <span>${s.login} · ${s.class}</span>
+          </div>
+          <div class="actions">
+            <button class="admin-icon-btn blue" onclick="openEditUser('${s.login}')" title="Изменить">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.pencil}</svg>
+            </button>
+            <button class="admin-icon-btn red" onclick="confirmDeleteUser('${s.login}','${escapeHtml(s.name)}')" title="Удалить">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.trash}</svg>
+            </button>
+          </div>
+        </div>
+      `).join('') : '<div class="empty">Нет учеников</div>'}
+      ${filteredStudents.length > 100 ? `<div style="text-align:center;font-size:11px;color:var(--sub);padding:10px">Показаны первые 100 из ${filteredStudents.length}</div>` : ''}
+    </div>
+    `}
+  `;
+}
+
+window.__adminSearch = function(v){
+  ui.adminSearch = v;
+  clearTimeout(window.__adminSearchTimer);
+  window.__adminSearchTimer = setTimeout(() => {
+    renderAdminUsers(document.getElementById('contentInner'));
+  }, 300);
+};
+
+window.openCreateUser = function(){
+  document.getElementById('modal').innerHTML = `
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.plus}</svg> Новый пользователь</h3>
+    <div class="form-group"><label class="label">Роль</label>
+      <select class="input" id="newRole" onchange="window.__toggleNewUserFields()">
+        <option value="student">Ученик</option>
+        <option value="teacher">Учитель</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="label">Логин</label>
+      <input class="input" id="newLogin" placeholder="s3000 или t20">
+    </div>
+    <div class="form-group"><label class="label">ФИО</label>
+      <input class="input" id="newName" placeholder="Иванов Иван Иванович">
+    </div>
+    <div class="form-group" id="newClassGroup"><label class="label">Класс</label>
+      <select class="input" id="newClass">${CLASSES.map(cl=>`<option>${cl}</option>`).join('')}</select>
+    </div>
+    <div class="form-group hidden" id="newSubjectGroup"><label class="label">Предмет</label>
+      <select class="input" id="newSubject">${getSubjectsForClass('9А').map(s=>`<option>${s}</option>`).join('')}</select>
+    </div>
+    <div class="form-group"><label class="label">Пароль</label>
+      <input class="input" id="newPassword" value="Password#2026">
+    </div>
+    <div class="row" style="gap:8px">
+      <button class="btn ghost" style="flex:1" onclick="closeModal()">Отмена</button>
+      <button class="btn green" style="flex:2" onclick="createUser()">Создать</button>
+    </div>
+  `;
+  document.getElementById('modalBg').classList.add('show');
+};
+
+window.__toggleNewUserFields = function(){
+  const role = document.getElementById('newRole').value;
+  document.getElementById('newClassGroup').classList.toggle('hidden', role !== 'student');
+  document.getElementById('newSubjectGroup').classList.toggle('hidden', role !== 'teacher');
+};
+
+window.createUser = async function(){
+  const role = document.getElementById('newRole').value;
+  const login = document.getElementById('newLogin').value.trim();
+  const name = document.getElementById('newName').value.trim();
+  const password = document.getElementById('newPassword').value;
+  if(!login || !name){ toast('Введите логин и ФИО', 'err'); return; }
+  try{
+    const exists = await getDoc(doc(db,'users',login));
+    if(exists.exists()){ toast('Логин занят', 'err'); return; }
+    const data = { login, name, password, role };
+    if(role === 'student'){
+      data.class = document.getElementById('newClass').value;
+      data.id = Date.now();
+    } else {
+      data.subject = document.getElementById('newSubject').value;
+    }
+    await setDoc(doc(db,'users',login), data);
+    toast('Пользователь создан');
+    closeModal();
+    renderAdminUsers(document.getElementById('contentInner'));
+  }catch(e){ toast('Ошибка: '+e.message, 'err'); }
+};
+
+window.openEditUser = async function(login){
+  const snap = await getDoc(doc(db,'users',login));
+  if(!snap.exists()){ toast('Не найден', 'err'); return; }
+  const u = snap.data();
+  const isTeacher = u.role === 'teacher';
+  const isStudent = u.role === 'student';
+  document.getElementById('modal').innerHTML = `
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.pencil}</svg> Редактировать</h3>
+    <div style="font-size:11px;color:var(--sub);margin-bottom:8px">Логин: <b>${escapeHtml(login)}</b></div>
+    <div class="form-group"><label class="label">ФИО</label>
+      <input class="input" id="editName" value="${escapeHtml(u.name||'')}">
+    </div>
+    ${isStudent ? `
+    <div class="form-group"><label class="label">Класс</label>
+      <select class="input" id="editClass">${CLASSES.map(cl=>`<option ${u.class===cl?'selected':''}>${cl}</option>`).join('')}</select>
+    </div>` : ''}
+    ${isTeacher ? `
+    <div class="form-group"><label class="label">Предмет</label>
+      <input class="input" id="editSubject" value="${escapeHtml(u.subject||'')}">
+    </div>` : ''}
+    <div class="form-group"><label class="label">Пароль</label>
+      <input class="input" id="editPassword" value="${escapeHtml(u.password||'')}">
+    </div>
+    <div class="row" style="gap:8px">
+      <button class="btn ghost" style="flex:1" onclick="closeModal()">Отмена</button>
+      <button class="btn green" style="flex:2" onclick="saveUserEdit('${login}')">Сохранить</button>
+    </div>
+  `;
+  document.getElementById('modalBg').classList.add('show');
+};
+
+window.saveUserEdit = async function(login){
+  const upd = {
+    name: document.getElementById('editName').value.trim(),
+    password: document.getElementById('editPassword').value
+  };
+  if(document.getElementById('editClass')) upd.class = document.getElementById('editClass').value;
+  if(document.getElementById('editSubject')) upd.subject = document.getElementById('editSubject').value.trim();
+  try{
+    await updateDoc(doc(db,'users',login), upd);
+    toast('Сохранено');
+    closeModal();
+    renderAdminUsers(document.getElementById('contentInner'));
+  }catch(e){ toast('Ошибка: '+e.message, 'err'); }
+};
+
+window.confirmDeleteUser = function(login, name){
+  document.getElementById('modal').innerHTML = `
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--g2)">${ICONS.trash}</svg> Удалить?</h3>
+    <div style="font-size:13px;margin-bottom:14px">Удалить <b>${escapeHtml(name)}</b> (${login})?<br><span style="font-size:11px;color:var(--sub)">Действие нельзя отменить.</span></div>
+    <div class="row" style="gap:8px">
+      <button class="btn ghost" style="flex:1" onclick="closeModal()">Отмена</button>
+      <button class="btn red" style="flex:2" onclick="deleteUser('${login}')">Удалить</button>
+    </div>
+  `;
+  document.getElementById('modalBg').classList.add('show');
+};
+
+window.deleteUser = async function(login){
+  try{
+    await deleteDoc(doc(db,'users',login));
+    toast('Удалён');
+    closeModal();
+    renderAdminUsers(document.getElementById('contentInner'));
+  }catch(e){ toast('Ошибка: '+e.message, 'err'); }
+};
+
+function renderAdminSchedule(c){
+  const subjects = getSubjectsForClass('9А');
+  c.innerHTML = `
+    <div class="card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.schedule}</svg> Расписание</h3>
+      <div class="form-group"><label class="label">Класс</label>
+        <select class="input" id="adClass">${CLASSES.map(cl=>`<option ${ui.journalClass===cl?'selected':''}>${cl}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label class="label">День недели</label>
+        <select class="input" id="adDay">${DAY_NAMES.map((n,i)=>`<option value="${i}">${n}</option>`).join('')}</select>
+      </div>
+      <button class="btn ghost small" style="width:100%;margin-bottom:8px" onclick="loadDayForEdit()">Загрузить день</button>
+    </div>
+    <div class="card"><h3>Уроки</h3><div id="lessonsForm"></div>
+      <button class="btn ghost small" style="width:100%;margin-top:8px" onclick="addLessonRow('', '${subjects[0]}','${TEACHER_DATA[0].name}','')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.plus}</svg> Добавить
+      </button>
+      <button class="btn green" style="margin-top:12px" onclick="saveSchedule()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.save}</svg> Сохранить</button>
+    </div>
+    <div class="card"><h3>Существующее</h3><div id="existingSched" class="empty">Загрузка...</div></div>`;
+  addLessonRow('08:10', subjects[0], TEACHER_DATA[0].name, '');
+  loadExistingSched();
+}
+
+window.addLessonRow = function(time='', subject='', teacher='', room=''){
+  const subjects = getSubjectsForClass('9А');
+  const div = document.createElement('div');
+  div.className = 'lesson-row';
+  div.style.cssText = 'background:var(--input-bg);padding:10px;border-radius:12px;margin-bottom:8px';
+  div.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+      <input class="input" placeholder="08:10" value="${time}" data-f="time" style="padding:8px;font-size:13px">
+      <input class="input" placeholder="Каб." value="${room}" data-f="room" style="padding:8px;font-size:13px">
+    </div>
+    <select class="input" data-f="subject" style="padding:8px;font-size:13px;margin-bottom:6px">
+      ${subjects.map(s=>`<option ${s===subject?'selected':''}>${s}</option>`).join('')}
+    </select>
+    <select class="input" data-f="teacher" style="padding:8px;font-size:13px">
+      <option value="">— выберите учителя —</option>
+      ${TEACHER_DATA.map(t=>`<option value="${t.name}" ${t.name===teacher?'selected':''}>${t.name} · ${t.subject}</option>`).join('')}
+    </select>
+    <div style="text-align:right;margin-top:6px"><span style="font-size:11px;color:#ef4444;cursor:pointer" onclick="this.closest('.lesson-row').remove()">Удалить</span></div>`;
+  document.getElementById('lessonsForm').appendChild(div);
+};
+
+window.loadDayForEdit = async function(){
+  const cls = document.getElementById('adClass').value;
+  const day = parseInt(document.getElementById('adDay').value);
+  const snap = await getDoc(doc(db,'schedule',`${cls}_${day}`));
+  const form = document.getElementById('lessonsForm');
+  form.innerHTML = '';
+  if(snap.exists() && snap.data().lessons?.length){
+    snap.data().lessons.forEach(l => addLessonRow(l.time, l.subject, l.teacher||'', l.room||''));
+    toast('Загружено');
+  } else { addLessonRow('08:10', getSubjectsForClass(cls)[0], TEACHER_DATA[0].name, ''); toast('Пусто', 'warn'); }
+};
+
+async function loadExistingSched(){
+  const snap = await getDocs(collection(db,'schedule'));
+  const all = snap.docs.map(d => ({id:d.id, ...d.data()}));
+  const el = document.getElementById('existingSched');
+  if(!all.length){ el.innerHTML = '<div class="empty">Не создано</div>'; return; }
+  const byClass = {};
+  all.forEach(s => { if(!byClass[s.class]) byClass[s.class] = 0; byClass[s.class]++; });
+  el.innerHTML = Object.keys(byClass).sort().map(cl => `<div style="font-size:12px;margin-bottom:3px"><b>${cl}</b>: ${byClass[cl]} дн.</div>`).join('');
+}
+
+window.saveSchedule = async function(){
+  const cls = document.getElementById('adClass').value;
+  const day = parseInt(document.getElementById('adDay').value);
+  const lessons = [];
+  document.querySelectorAll('.lesson-row').forEach(row => {
+    const o = {};
+    row.querySelectorAll('[data-f]').forEach(inp => { o[inp.dataset.f] = inp.value.trim(); });
+    if(o.subject && o.time) lessons.push(o);
+  });
+  if(!lessons.length){ toast('Нет уроков', 'err'); return; }
+  await setDoc(doc(db,'schedule',`${cls}_${day}`), {class:cls, day, lessons});
+  toast('Сохранено');
+  loadExistingSched();
+};
+
+function renderAdminUnlock(c){
+  c.innerHTML = `<div class="card"><div class="empty">Загрузка...</div></div>`;
+  if(unsubUnlock) unsubUnlock();
+  unsubUnlock = onSnapshot(collection(db,'grades'), snap => {
+    const all = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    const locked = all.filter(isLocked);
+    if(!locked.length){ c.innerHTML = `<div class="card"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.unlock}</svg>Нет заблокированных</div></div>`; return; }
+    c.innerHTML = `<div class="card"><h3>Заблокировано (${locked.length})</h3>${locked.map(g => `
+      <div class="row" style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <div><b>${escapeHtml(g.studentLogin)}</b> · ${escapeHtml(g.subject)}<br><span style="color:var(--sub)">${g.date} · ${g.value}</span></div>
+        <button class="btn small ghost" onclick="unlockGrade('${g.id}')">Открыть</button>
+      </div>`).join('')}</div>`;
+  });
+}
+window.unlockGrade = async function(id){
+  const future = new Date(Date.now() + 24*3600*1000);
+  await updateDoc(doc(db,'grades',id), { unlockedUntil: future });
+  toast('Разблокировано на 24 ч');
+};
+
+function renderProfile(c){
+  c.innerHTML = `<div class="card"><div class="empty">Загрузка...</div></div>`;
+  loadProfileStats();
+}
+async function loadProfileStats(){
+  const isStudent = currentUser.role === 'student';
+  const q = isStudent
+    ? query(collection(db,'grades'), where('studentLogin','==',currentUser.login))
+    : query(collection(db,'grades'), where('teacherLogin','==',currentUser.login));
+  const snap = await getDocs(q);
+  const grades = snap.docs.map(d => d.data());
+  const sick = grades.filter(g => g.value === 'Б').length;
+  const late = grades.filter(g => g.value === 'У').length;
+  const absent = grades.filter(g => g.value === 'Н').length;
+  const num = grades.filter(g => typeof g.value === 'number');
+  const avg = num.length ? (num.reduce((s,g) => s + g.value, 0) / num.length).toFixed(2) : '—';
+  document.getElementById('contentInner').innerHTML = `
+    <div class="card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.profile}</svg> Профиль</h3>
+      <div style="font-size:18px;font-weight:800;margin-bottom:4px">${escapeHtml(currentUser.name)}</div>
+      <div style="font-size:12px;color:var(--sub)">${currentUser.role==='student'?'Ученик · '+currentUser.class:currentUser.role==='teacher'?'Учитель · '+escapeHtml(currentUser.subject||''):'Диспетчер'}</div>
+      <div style="font-size:11px;color:var(--sub);margin-top:6px">Логин: ${currentUser.login}</div>
+    </div>
+    ${isStudent ? `<div class="card"><h3>Статистика</h3><div class="stat-grid">
+      <div class="stat"><div class="num" style="color:#dc2626">${sick}</div><div class="lbl">Болезни</div></div>
+      <div class="stat"><div class="num" style="color:#eab308">${late}</div><div class="lbl">Уважительных</div></div>
+      <div class="stat"><div class="num" style="color:#64748b">${absent}</div><div class="lbl">Пропусков</div></div>
+      <div class="stat"><div class="num" style="color:#007aff">${avg}</div><div class="lbl">Средний</div></div>
+    </div></div>` : ''}
+    <div class="card"><h3>Тема</h3>
+      <button class="btn ghost" onclick="toggleTheme()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>Светлая / Тёмная</button>
+    </div>
+    <div class="card"><h3>О системе</h3>
+      <div style="font-size:12px;color:var(--sub);line-height:1.7">
+        <b>Электронный дневник 48</b><br>
+        Липецкая область · Россия<br>
+        <span style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 10px;background:rgba(52,199,89,.15);border-radius:10px;border:1px solid rgba(52,199,89,.3)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" style="width:14px;height:14px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Все данные синхронизированы на <b>RusDreamServer</b>
+        </span>
+        <div style="margin-top:8px;font-size:11px;opacity:.8">Сервер расположен на территории РФ. Данные защищены и синхронизируются в реальном времени.</div>
+      </div>
+    </div>`;
+}
+
+window.renderJournal = renderJournal;
+window.renderMessages = renderMessages;
+window.renderContent = renderContent;
+window.renderProfile = renderProfile;
+window.renderStudentGrades = renderStudentGrades;
+window.renderStudentSchedule = renderStudentSchedule;
+window.renderStudentWeighted = renderStudentWeighted;
+window.renderStudentAnnual = renderStudentAnnual;
+window.renderTeacherAnnual = renderTeacherAnnual;
+window.renderTeacherSchedule = renderTeacherSchedule;
+window.renderAdminUsers = renderAdminUsers;
+window.renderAdminSchedule = renderAdminSchedule;
+window.renderAdminUnlock = renderAdminUnlock;
+window.loadJournalTable = loadJournalTable;
+window.loadExistingSched = loadExistingSched;
+window.loadMessages = loadMessages;
+window.loadProfileStats = loadProfileStats;
+window.loadDayForEdit = loadDayForEdit;
+window.saveRemark = saveRemark;
+
+(async () => {
+  try{
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    await seedIfNeeded();
+    const saved = localStorage.getItem('diaryLogin');
+    if(saved){
+      const snap = await getDoc(doc(db,'users',saved));
+      if(snap.exists()){ currentUser = {...snap.data(), login:saved}; showApp(); }
+    }
+  }catch(e){ console.error(e); toast('Ошибка: '+e.message, 'err'); }
+})();
+</script>
+</body>
+</html>
