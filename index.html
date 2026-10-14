@@ -37,7 +37,7 @@
 *{box-sizing:border-box;margin:0;padding:0;font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--text);transition:background .4s;position:relative}
-.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;z-index:0;transition:background .4s;pointer-events:none;animation:none}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;z-index:0;transition:background .4s;pointer-events:none}
 .b1{width:450px;height:450px;background:var(--blob1);top:-120px;left:-120px}
 .b2{width:550px;height:550px;background:var(--blob2);bottom:-180px;right:-120px}
 .b3{width:350px;height:350px;background:var(--blob3);top:35%;left:25%}
@@ -61,19 +61,12 @@ body{background:var(--bg);color:var(--text);transition:background .4s;position:r
 .btn.ghost{background:var(--input-bg);color:var(--text);box-shadow:none;border:1px solid var(--border)}
 .btn.small{padding:10px 14px;font-size:13px;width:auto}
 .btn svg{width:18px;height:18px}
-.theme-toggle{position:fixed;top:16px;right:16px;width:42px;height:42px;border-radius:50%;background:var(--input-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;transition:.2s;color:var(--text);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.theme-toggle:active{transform:scale(.92)}
-.theme-toggle svg{width:20px;height:20px}
 
 #appScreen{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
-.header{padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);flex-shrink:0;gap:10px}
+.header{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);flex-shrink:0;gap:10px}
 .header-info{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
 .header-info h1{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px}
 .header-info h1 svg{width:16px;height:16px;color:var(--accent);flex-shrink:0}
-.logout-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:20px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--g2);font-size:11px;font-weight:700;cursor:pointer;transition:.2s;width:fit-content;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.logout-btn:hover{background:rgba(239,68,68,.22);transform:translateY(-1px)}
-.logout-btn:active{transform:scale(.96)}
-.logout-btn svg{width:12px;height:12px}
 .user-chip{background:var(--input-bg);padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
 .user-chip svg{width:14px;height:14px;flex-shrink:0}
 .content{flex:1;overflow-y:auto;padding:16px 16px 120px 16px;scrollbar-width:none;touch-action:pan-y;width:100%;overflow-x:hidden}
@@ -101,13 +94,13 @@ body{background:var(--bg);color:var(--text);transition:background .4s;position:r
     0 0 24px rgba(52,199,89,.22);
   border:1px solid rgba(255,255,255,.7);
   transition:transform .35s cubic-bezier(.4,1.3,.6,1),width .35s cubic-bezier(.4,1.3,.6,1);
-  z-index:1;cursor:grab;user-select:none;
+  z-index:1;user-select:none;
   touch-action:none;
   will-change:transform;
-  pointer-events:auto;
+  pointer-events:none;
 }
 .nav-pill.dragging{
-  transition:none;cursor:grabbing;
+  transition:none;
   animation-duration:1.5s;
   box-shadow:
     inset 0 1px 1px rgba(255,255,255,.95),
@@ -120,7 +113,7 @@ body{background:var(--bg);color:var(--text);transition:background .4s;position:r
   50%  {background-position:100% 100%, 0% 0%, 50% 50%}
   100% {background-position:0% 0%, 100% 100%, 50% 50%}
 }
-.nav-btn{position:relative;z-index:2;width:52px;height:44px;border-radius:36px;border:none;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--sub);font-size:8px;font-weight:700;transition:color .2s;pointer-events:auto;padding:0 2px;flex:none}
+.nav-btn{position:relative;z-index:2;width:52px;height:44px;border-radius:36px;border:none;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--sub);font-size:8px;font-weight:700;transition:color .2s;pointer-events:none;padding:0 2px;flex:none}
 .nav-btn svg{width:18px;height:18px}
 .nav-btn.active{color:var(--text)}
 .nav-badge{position:absolute;top:2px;right:4px;min-width:16px;height:16px;border-radius:8px;background:var(--g2);color:#fff;font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--input-bg-focus);line-height:1}
@@ -248,6 +241,17 @@ body{background:var(--bg);color:var(--text);transition:background .4s;position:r
 .admin-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .admin-toolbar .input{flex:1;min-width:150px;padding:10px 12px;font-size:13px}
 
+/* ПРОФИЛЬ */
+.profile-hero{text-align:center;padding:20px 16px 24px}
+.profile-avatar{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#34c759,#007aff);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;margin:0 auto 14px;box-shadow:0 8px 24px rgba(52,199,89,.35),inset 0 -4px 12px rgba(0,0,0,.1)}
+.profile-name{font-size:20px;font-weight:800;letter-spacing:-.3px;margin-bottom:6px}
+.profile-role{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:var(--input-bg);color:var(--sub);margin-bottom:4px}
+.profile-id{font-size:11px;color:var(--sub);margin-top:6px}
+.profile-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.profile-row:last-child{border-bottom:none}
+.profile-row .lbl{font-size:12px;color:var(--sub);font-weight:600}
+.profile-row .val{font-size:13px;font-weight:700}
+
 @media (min-width:600px){
   .content{padding:20px 32px 130px 32px}
   .header{padding:20px 32px}
@@ -270,12 +274,9 @@ body{background:var(--bg);color:var(--text);transition:background .4s;position:r
   .nav-pill{height:40px;top:5px}
   .user-chip{font-size:11px;padding:6px 10px;max-width:130px}
   .header-info h1{font-size:14px}
-  .logout-btn{font-size:10px;padding:5px 8px}
   .weekend-label{padding:10px;font-size:12px}
   .day-header{padding:8px 10px;font-size:12px}
   .lesson{padding:8px 10px;font-size:12px}
-  .theme-toggle{top:10px;right:10px;width:38px;height:38px}
-  .theme-toggle svg{width:20px;height:20px}
   .journal .name-col{min-width:100px;max-width:110px;font-size:10px;padding:6px 4px}
   .jcell{width:40px;height:40px;font-size:13px}
   .journal{min-width:480px}
@@ -287,7 +288,6 @@ body{background:var(--bg);color:var(--text);transition:background .4s;position:r
 
 <div class="app" id="app">
   <div class="toast" id="toast"></div>
-  <div class="theme-toggle" onclick="toggleTheme()" id="themeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></div>
 
   <div id="loginScreen">
     <div class="login-inner">
@@ -315,10 +315,6 @@ body{background:var(--bg);color:var(--text);transition:background .4s;position:r
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
           <span id="appTitleText">Дневник</span>
         </h1>
-        <button class="logout-btn" onclick="logout()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Выйти
-        </button>
       </div>
       <div class="user-chip" id="userChip">—</div>
     </div>
@@ -352,7 +348,7 @@ for(let g=1; g<=11; g++) PARALLELS.forEach(p => CLASSES.push(g+p));
 const DAYS_SHORT = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 const DAY_NAMES = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"];
 const LOCK_HOURS = 24;
-const DB_VERSION = 15;
+const DB_VERSION = 16;
 
 const TEACHER_DATA = [
   {login:'t1',name:'Иванова Анна Петровна',subject:'Алгебра'},
@@ -386,7 +382,6 @@ function buildStudents(){
   const arr = [];
   let idx = 0;
   const PER_CLASS = 30;
-
   CLASSES.forEach((cls, classIdx) => {
     const shift = classIdx * 4;
     for(let k = 0; k < PER_CLASS; k++){
@@ -400,7 +395,6 @@ function buildStudents(){
       arr.push({login:'s'+idx, role:'student', name, class:cls, id:idx, gender: isM ? 'M' : 'F'});
     }
   });
-
   idx++;
   arr.push({login:'s'+idx, role:'student', name:'София Владимировна', class:'9А', id:idx, gender:'F'});
   idx++;
@@ -457,20 +451,19 @@ function isLocked(g){
 }
 function valuesToStr(arr){ return arr.filter(x=>x!==undefined && x!==null && x!=='').join('/'); }
 function escapeHtml(str){ return (str||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function getInitials(name){
+  const parts = (name||'').split(' ').filter(Boolean);
+  if(!parts.length) return '?';
+  if(parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
 
 window.toggleTheme = function(){
   const b = document.body;
   const next = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   b.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
-  updateThemeIcon(next);
 };
-function updateThemeIcon(t){
-  const el = document.getElementById('themeIcon');
-  el.innerHTML = t==='dark'
-    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
-    : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>';
-}
 
 async function seedIfNeeded(){
   const sys = await getDoc(doc(db,'system','config'));
@@ -492,14 +485,12 @@ async function seedIfNeeded(){
   await batch1.commit();
 
   const students = buildStudents();
-  console.log('Учеников к созданию:', students.length);
   const CHUNK = 400;
   for(let i = 0; i < students.length; i += CHUNK){
     const b = writeBatch(db);
     const slice = students.slice(i, i + CHUNK);
     for(const s of slice) b.set(doc(db,'users',s.login), {...s, password:'School#2026'});
     await b.commit();
-    console.log('Записано учеников:', Math.min(i + CHUNK, students.length), '/', students.length);
   }
 
   const demo9 = [
@@ -525,10 +516,8 @@ async function seedIfNeeded(){
   }
 
   await setDoc(doc(db,'system','config'), {
-    version: DB_VERSION,
-    seeded: true,
-    createdAt: serverTimestamp(),
-    server: 'RusDreamServer'
+    version: DB_VERSION, seeded: true,
+    createdAt: serverTimestamp(), server: 'RusDreamServer'
   });
   toast('База создана · ' + students.length + ' учеников', 'warn');
 }
@@ -588,9 +577,9 @@ const ICONS = {
   empty:'<path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7"/><polyline points="22 17 16 17 14 20 10 20 8 17 2 17"/>',
   calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
   pencil:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>',
-  key:'<path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>',
-  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',
-  refresh:'<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>'
+  logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+  moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>'
 };
 
 const NAV_ITEMS = {
@@ -660,7 +649,10 @@ function positionPill(animate=true){
 function setupPillDrag(nav, items){
   const pill = document.getElementById('navPill');
   const btns = () => Array.from(nav.querySelectorAll('.nav-btn'));
-  let dragging = false, startX = 0, startOffset = 0, currentOffset = 0, activePointer = null;
+  let dragging = false;
+  let startX = 0, startOffset = 0, currentOffset = 0;
+  let activePointer = null;
+  let moved = false;
 
   function activeOffset(){
     const idx = items.findIndex(it => it.id === ui.tab);
@@ -669,21 +661,22 @@ function setupPillDrag(nav, items){
   }
 
   const onDown = (e) => {
-    if(!e.target.closest('#navPill')) return;
     dragging = true;
+    moved = false;
     activePointer = e.pointerId;
-    try{ pill.setPointerCapture(e.pointerId); }catch(_){}
+    try{ nav.setPointerCapture(e.pointerId); }catch(_){}
     startX = e.clientX;
     startOffset = activeOffset();
     currentOffset = startOffset;
     pill.classList.add('dragging');
-    e.preventDefault();
-    e.stopPropagation();
   };
 
   const onMove = (e) => {
     if(!dragging || e.pointerId !== activePointer) return;
-    currentOffset = startOffset + (e.clientX - startX);
+    const dx = e.clientX - startX;
+    if(Math.abs(dx) > 6) moved = true;
+    if(!moved) return;
+    currentOffset = startOffset + dx;
     const bs = btns();
     if(!bs.length) return;
     currentOffset = Math.max(bs[0].offsetLeft, Math.min(bs[bs.length-1].offsetLeft, currentOffset));
@@ -696,7 +689,26 @@ function setupPillDrag(nav, items){
     dragging = false;
     activePointer = null;
     pill.classList.remove('dragging');
-    try{ pill.releasePointerCapture(e.pointerId); }catch(_){}
+    try{ nav.releasePointerCapture(e.pointerId); }catch(_){}
+
+    if(!moved){
+      const bs = btns();
+      let clickedId = null;
+      bs.forEach(b => {
+        const r = b.getBoundingClientRect();
+        if(e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom){
+          clickedId = b.dataset.id;
+        }
+      });
+      if(clickedId && clickedId !== ui.tab){
+        ui.tab = clickedId;
+        clearSubs();
+        renderNav();
+        renderContent();
+      }
+      return;
+    }
+
     const bs = btns();
     let bestIdx = 0, bestDist = Infinity;
     bs.forEach((b, i) => {
@@ -711,28 +723,10 @@ function setupPillDrag(nav, items){
     renderContent();
   };
 
-  document.removeEventListener('pointermove', document.__pillMove);
-  document.removeEventListener('pointerup', document.__pillUp);
-  document.removeEventListener('pointercancel', document.__pillUp);
-
-  document.__pillMove = onMove;
-  document.__pillUp = onUp;
-
-  pill.onpointerdown = onDown;
-  document.addEventListener('pointermove', onMove, {passive:false});
-  document.addEventListener('pointerup', onUp);
-  document.addEventListener('pointercancel', onUp);
-
-  nav.querySelectorAll('.nav-btn').forEach(b => {
-    b.onclick = () => {
-      const t = b.dataset.id;
-      if(t === ui.tab) return;
-      ui.tab = t;
-      clearSubs();
-      renderNav();
-      renderContent();
-    };
-  });
+  nav.onpointerdown = onDown;
+  nav.onpointermove = onMove;
+  nav.onpointerup = onUp;
+  nav.onpointercancel = onUp;
 }
 
 function clearSubs(){
@@ -973,9 +967,7 @@ function renderStudentAnnual(c){
 
 function renderJournal(c){
   const classSubs = getSubjectsForClass(ui.journalClass);
-  const list = classSubs.includes(currentUser.subject)
-    ? classSubs
-    : [currentUser.subject, ...classSubs];
+  const list = classSubs.includes(currentUser.subject) ? classSubs : [currentUser.subject, ...classSubs];
   if(!list.includes(ui.journalSubject)) ui.journalSubject = list[0];
 
   c.innerHTML = `
@@ -1188,7 +1180,6 @@ window.saveRemark = async function(studentLogin, dateStr, fullDate){
 
 window.removeGrade = async function(id, studentLogin, dateStr, category){
   try{
-    console.log('🗑 removeGrade:', {id, studentLogin, dateStr, category});
     let deleted = false;
     if(id){
       try{ await deleteDoc(doc(db,'grades',id)); deleted = true; }
@@ -1699,9 +1690,48 @@ window.unlockGrade = async function(id){
 };
 
 function renderProfile(c){
-  c.innerHTML = `<div class="card"><div class="empty">Загрузка...</div></div>`;
+  c.innerHTML = `
+    <div class="card">
+      <div class="profile-hero">
+        <div class="profile-avatar">${escapeHtml(getInitials(currentUser.name))}</div>
+        <div class="profile-name">${escapeHtml(currentUser.name)}</div>
+        <div class="profile-role">${
+          currentUser.role==='student' ? 'Ученик · '+currentUser.class :
+          currentUser.role==='teacher' ? 'Учитель · '+escapeHtml(currentUser.subject||'') :
+          'Диспетчер'
+        }</div>
+        <div class="profile-id">Логин: ${escapeHtml(currentUser.login)}</div>
+      </div>
+    </div>
+    <div id="profileStats"></div>
+    <div class="card">
+      <h3>Тема оформления</h3>
+      <button class="btn ghost" onclick="toggleTheme()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.moon}</svg>
+        Переключить светлую / тёмную
+      </button>
+    </div>
+    <div class="card">
+      <h3>О системе</h3>
+      <div style="font-size:12px;color:var(--sub);line-height:1.7">
+        <b>Электронный дневник 48</b><br>
+        Липецкая область · Россия<br>
+        <span style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 10px;background:rgba(52,199,89,.15);border-radius:10px;border:1px solid rgba(52,199,89,.3)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" style="width:14px;height:14px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Все данные на <b>RusDreamServer</b>
+        </span>
+      </div>
+    </div>
+    <div class="card">
+      <button class="btn red" onclick="logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">${ICONS.logout}</svg>
+        Выйти из аккаунта
+      </button>
+    </div>
+  `;
   loadProfileStats();
 }
+
 async function loadProfileStats(){
   const isStudent = currentUser.role === 'student';
   const q = isStudent
@@ -1714,32 +1744,53 @@ async function loadProfileStats(){
   const absent = grades.filter(g => g.value === 'Н').length;
   const num = grades.filter(g => typeof g.value === 'number');
   const avg = num.length ? (num.reduce((s,g) => s + g.value, 0) / num.length).toFixed(2) : '—';
-  document.getElementById('contentInner').innerHTML = `
-    <div class="card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.profile}</svg> Профиль</h3>
-      <div style="font-size:18px;font-weight:800;margin-bottom:4px">${escapeHtml(currentUser.name)}</div>
-      <div style="font-size:12px;color:var(--sub)">${currentUser.role==='student'?'Ученик · '+currentUser.class:currentUser.role==='teacher'?'Учитель · '+escapeHtml(currentUser.subject||''):'Диспетчер'}</div>
-      <div style="font-size:11px;color:var(--sub);margin-top:6px">Логин: ${currentUser.login}</div>
-    </div>
-    ${isStudent ? `<div class="card"><h3>Статистика</h3><div class="stat-grid">
-      <div class="stat"><div class="num" style="color:#dc2626">${sick}</div><div class="lbl">Болезни</div></div>
-      <div class="stat"><div class="num" style="color:#eab308">${late}</div><div class="lbl">Уважительных</div></div>
-      <div class="stat"><div class="num" style="color:#64748b">${absent}</div><div class="lbl">Пропусков</div></div>
-      <div class="stat"><div class="num" style="color:#007aff">${avg}</div><div class="lbl">Средний</div></div>
-    </div></div>` : ''}
-    <div class="card"><h3>Тема</h3>
-      <button class="btn ghost" onclick="toggleTheme()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>Светлая / Тёмная</button>
-    </div>
-    <div class="card"><h3>О системе</h3>
-      <div style="font-size:12px;color:var(--sub);line-height:1.7">
-        <b>Электронный дневник 48</b><br>
-        Липецкая область · Россия<br>
-        <span style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 10px;background:rgba(52,199,89,.15);border-radius:10px;border:1px solid rgba(52,199,89,.3)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" style="width:14px;height:14px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          Все данные синхронизированы на <b>RusDreamServer</b>
-        </span>
-        <div style="margin-top:8px;font-size:11px;opacity:.8">Сервер расположен на территории РФ. Данные защищены и синхронизируются в реальном времени.</div>
+
+  const el = document.getElementById('profileStats');
+  if(!el) return;
+
+  if(isStudent){
+    el.innerHTML = `
+      <div class="card">
+        <h3>Статистика ученика</h3>
+        <div class="stat-grid">
+          <div class="stat"><div class="num" style="color:#dc2626">${sick}</div><div class="lbl">Болезни</div></div>
+          <div class="stat"><div class="num" style="color:#eab308">${late}</div><div class="lbl">Уважительных</div></div>
+          <div class="stat"><div class="num" style="color:#64748b">${absent}</div><div class="lbl">Пропусков</div></div>
+          <div class="stat"><div class="num" style="color:#007aff">${avg}</div><div class="lbl">Средний балл</div></div>
+        </div>
       </div>
-    </div>`;
+      <div class="card">
+        <h3>Учебная информация</h3>
+        <div class="profile-row"><span class="lbl">Класс</span><span class="val">${escapeHtml(currentUser.class||'—')}</span></div>
+        <div class="profile-row"><span class="lbl">Роль</span><span class="val">Ученик</span></div>
+      </div>
+    `;
+  } else if(currentUser.role === 'teacher'){
+    const totalGrades = num.length;
+    el.innerHTML = `
+      <div class="card">
+        <h3>Статистика учителя</h3>
+        <div class="stat-grid">
+          <div class="stat"><div class="num" style="color:#007aff">${totalGrades}</div><div class="lbl">Всего оценок</div></div>
+          <div class="stat"><div class="num" style="color:#34c759">${avg}</div><div class="lbl">Средний балл</div></div>
+          <div class="stat"><div class="num" style="color:#dc2626">${sick}</div><div class="lbl">Болезни</div></div>
+          <div class="stat"><div class="num" style="color:#64748b">${absent + late}</div><div class="lbl">Пропуски</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Профиль учителя</h3>
+        <div class="profile-row"><span class="lbl">Предмет</span><span class="val">${escapeHtml(currentUser.subject||'—')}</span></div>
+        <div class="profile-row"><span class="lbl">Роль</span><span class="val">Учитель</span></div>
+      </div>
+    `;
+  } else {
+    el.innerHTML = `
+      <div class="card">
+        <h3>Администратор</h3>
+        <div class="profile-row"><span class="lbl">Роль</span><span class="val">Диспетчер</span></div>
+      </div>
+    `;
+  }
 }
 
 window.renderJournal = renderJournal;
@@ -1766,7 +1817,6 @@ window.saveRemark = saveRemark;
   try{
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.body.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
     await seedIfNeeded();
     const saved = localStorage.getItem('diaryLogin');
     if(saved){
@@ -1777,4 +1827,4 @@ window.saveRemark = saveRemark;
 })();
 </script>
 </body>
-  </html>
+</html>
